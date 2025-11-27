@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
-export const runtime = "edge"; // หรือ "nodejs" ได้ทั้งคู่
+export const runtime = "nodejs"; // ใช้ node ก็ได้ edge ก็ได้
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,19 +16,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // แปลงไฟล์เป็น buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = new Uint8Array(arrayBuffer);
-
-    // ตั้งชื่อไฟล์บน Blob
     const filename = `shodaiev/${Date.now()}-${file.name}`;
 
-    // อัปขึ้น Blob
-    const blob = await put(filename, buffer, {
-      access: "public", // ให้ได้ URL เอาไปใช้หน้าเว็บได้เลย
+    // ✅ ส่ง file ตรง ๆ เข้า put ได้เลย
+    const blob = await put(filename, file, {
+      access: "public",
     });
 
-    // blob.url = URL จริงของรูป
     return NextResponse.json(
       {
         ok: true,
