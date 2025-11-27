@@ -7,17 +7,29 @@ const ADMIN_COOKIE = "admin_auth";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // ✅ ให้ทำงานเฉพาะเส้นทางที่ขึ้นต้นด้วย /admin
+  // ทำงานเฉพาะ route ที่ขึ้นต้นด้วย /admin เท่านั้น
   if (!pathname.startsWith("/admin")) {
     return NextResponse.next();
   }
 
-  // ✅ ปล่อยหน้า login ผ่าน ไม่เช็ค cookie
-  if (pathname === "/admin/login") {
+  // --- ปล่อยทุก path ที่เป็นหน้า login ผ่านหมด ---
+  // /admin/login
+  // /admin/login/ 
+  const isLoginPath =
+    pathname === "/admin/login" ||
+    pathname === "/admin/login/";
+
+  if (isLoginPath) {
     return NextResponse.next();
   }
 
-  // ✅ เช็ค cookie สำหรับหน้า admin ที่เหลือ
+  // ถ้ามี path แปลก ๆ ที่เริ่มด้วย /admin/login (เช่น /admin/login/callback)
+  // ก็ไม่ควรเอามาเช็ค cookie เดี๋ยวมัน loop
+  if (pathname.startsWith("/admin/login")) {
+    return NextResponse.next();
+  }
+
+  // --- จากนี้คือหน้า admin จริง ๆ ที่ต้องล็อกอิน ---
   const token = req.cookies.get(ADMIN_COOKIE)?.value;
 
   if (!token) {
