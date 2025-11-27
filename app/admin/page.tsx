@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import type {
   SiteConfig,
   ServiceItem,
@@ -11,6 +10,8 @@ import type {
 } from "@/lib/server/siteData";
 import { v4 as uuid } from "uuid";
 
+const ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_KEY;
+
 type SectionId =
   | "dashboard"
   | "hero"
@@ -19,7 +20,7 @@ type SectionId =
   | "serviceDetail"
   | "homeGallery"
   | "contact"
-  | "theme"
+  | "theme";
 
 const createEmptyConfig = (): SiteConfig => ({
   heroTitle: "",
@@ -44,7 +45,8 @@ const createEmptyConfig = (): SiteConfig => ({
   businessAddress: "",
   businessName: "",
   seoServiceDetailDescriptionSuffix: "",
-  seoServiceDetailTitlePrefix: ""
+  seoServiceDetailTitlePrefix: "",
+  homeGallery: [],
 });
 
 type AdminSidebarProps = {
@@ -241,7 +243,11 @@ const DashboardView = ({ config }: { config: SiteConfig }) => {
     },
     { label: "Topic", value: totalTopics, icon: "💼" },
     { label: "Service Detail Pages", value: totalDetails, icon: "🖼️" },
-    { label: "HomeGallery Images", value: (config.homeGallery || []).length, icon: "🖼️" },
+    {
+      label: "HomeGallery Images",
+      value: (config.homeGallery || []).length,
+      icon: "🖼️",
+    },
   ];
 
   return (
@@ -482,7 +488,6 @@ const ThemeEditorView = ({ config, setConfig }: ThemeEditorProps) => {
   );
 };
 
-
 type HeroEditorProps = {
   config: SiteConfig;
   setConfig: (cfg: SiteConfig) => void;
@@ -540,7 +545,8 @@ const HeroEditorView = ({ config, setConfig }: HeroEditorProps) => {
               Hero Banner
             </h3>
             <p className="text-[11px] md:text-xs text-slate-500 mt-1">
-              รูปนี้จะแสดงเต็มกว้างด้านบนสุดของหน้าเว็บ เป็น Banner อย่างเดียว ไม่มีตัวหนังสือทับ
+              รูปนี้จะแสดงเต็มกว้างด้านบนสุดของหน้าเว็บ เป็น Banner อย่างเดียว
+              ไม่มีตัวหนังสือทับ
             </p>
           </div>
 
@@ -645,7 +651,10 @@ type HomeGalleryEditorProps = {
   setConfig: (cfg: SiteConfig) => void;
 };
 
-const HomeGalleryEditorView = ({ config, setConfig }: HomeGalleryEditorProps) => {
+const HomeGalleryEditorView = ({
+  config,
+  setConfig,
+}: HomeGalleryEditorProps) => {
   const images = Array.isArray(config.homeGallery) ? config.homeGallery : [];
   const [uploading, setUploading] = useState(false);
 
@@ -807,7 +816,6 @@ const HomeGalleryEditorView = ({ config, setConfig }: HomeGalleryEditorProps) =>
   );
 };
 
-
 type ContactEditorProps = {
   config: SiteConfig;
   setConfig: (cfg: SiteConfig) => void;
@@ -823,9 +831,7 @@ const ContactEditorView = ({ config, setConfig }: ContactEditorProps) => (
         <input
           className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent bg-white"
           value={config.phone || ""}
-          onChange={(e) =>
-            setConfig({ ...config, phone: e.target.value })
-          }
+          onChange={(e) => setConfig({ ...config, phone: e.target.value })}
           placeholder="เช่น 081-234-5678"
         />
       </div>
@@ -849,9 +855,7 @@ const ContactEditorView = ({ config, setConfig }: ContactEditorProps) => (
         <input
           className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent bg-white"
           value={config.lineUrl || ""}
-          onChange={(e) =>
-            setConfig({ ...config, lineUrl: e.target.value })
-          }
+          onChange={(e) => setConfig({ ...config, lineUrl: e.target.value })}
           placeholder="https://line.me/ti/p/@yourline"
         />
       </div>
@@ -864,9 +868,7 @@ const ContactEditorView = ({ config, setConfig }: ContactEditorProps) => (
           type="url"
           className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent bg-white"
           value={config.facebook || ""}
-          onChange={(e) =>
-            setConfig({ ...config, facebook: e.target.value })
-          }
+          onChange={(e) => setConfig({ ...config, facebook: e.target.value })}
           placeholder="https://facebook.com/yourpage"
         />
       </div>
@@ -878,9 +880,7 @@ const ContactEditorView = ({ config, setConfig }: ContactEditorProps) => (
         <input
           className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent bg-white"
           value={config.mapUrl || ""}
-          onChange={(e) =>
-            setConfig({ ...config, mapUrl: e.target.value })
-          }
+          onChange={(e) => setConfig({ ...config, mapUrl: e.target.value })}
           placeholder="ลิงก์ Google Maps เช่น https://maps.app.goo.gl/..."
         />
       </div>
@@ -897,9 +897,9 @@ const slugify = (text: string) =>
   text
     .trim()
     .toLowerCase()
-    .replace(/\s+/g, "-") // ช่องว่าง -> -
-    .replace(/\//g, "-")  // กัน /
-    .replace(/[^a-z0-9\u0E00-\u0E7F\-_]/gi, ""); // a-z, 0-9, ไทย, -, _
+    .replace(/\s+/g, "-")
+    .replace(/\//g, "-")
+    .replace(/[^a-z0-9\u0E00-\u0E7F\-_]/gi, "");
 
 const ServicesEditorView = ({ config, setConfig }: ServicesEditorProps) => {
   const services: ServiceItem[] = Array.isArray(config.services)
@@ -1160,15 +1160,12 @@ const TopicsEditorView = ({ config, setConfig }: TopicsEditorProps) => {
   const handleConfirm = () => {
     if (!editItem) return;
 
-    // 1) เอาค่า id ที่ user กรอก ถ้าไม่มีก็สร้างจาก title
     let rawId = editItem.id || editItem.title || "";
     if (!rawId) rawId = "service";
 
-    // 2) ทำ slug สวย ๆ
     let baseSlug = slugify(rawId);
     if (!baseSlug) baseSlug = "service";
 
-    // 3) กันชน slug ซ้ำ (เว้นตัวที่กำลังแก้)
     let slug = baseSlug;
     let counter = 1;
     const existing = topics.filter((t) => t.id !== originalId);
@@ -1185,10 +1182,8 @@ const TopicsEditorView = ({ config, setConfig }: TopicsEditorProps) => {
     let next: TopicItem[];
 
     if (originalId) {
-      // แก้อันเดิม
       next = [...topics.filter((t) => t.id !== originalId), normalized];
     } else {
-      // เพิ่มใหม่
       next = [...topics, normalized];
     }
 
@@ -1344,7 +1339,6 @@ const TopicsEditorView = ({ config, setConfig }: TopicsEditorProps) => {
             </div>
 
             <div className="px-5 py-4 sm:py-5 space-y-4">
-              {/* Thumbnail */}
               <div className="space-y-2">
                 <p className="text-xs font-semibold text-slate-700">
                   รูป Thumbnail ของหัวข้อ
@@ -1491,8 +1485,6 @@ const TopicsEditorView = ({ config, setConfig }: TopicsEditorProps) => {
   );
 };
 
-
-
 type ServiceDetailEditorProps = {
   config: SiteConfig;
   setConfig: (cfg: SiteConfig) => void;
@@ -1622,8 +1614,6 @@ const ServiceDetailEditorView = ({
     });
   };
 
-  // ---------- จัดการหัวข้อย่อย (sections) ----------
-
   const addSection = () => {
     setDraft((prev) => {
       if (!prev) return prev;
@@ -1731,8 +1721,6 @@ const ServiceDetailEditorView = ({
     });
   };
 
-  // ---------- UI ----------
-
   if (topics.length === 0) {
     return (
       <div className="bg-gradient-to-br from-white to-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
@@ -1829,7 +1817,6 @@ const ServiceDetailEditorView = ({
       )}
 
       <div className="p-4 sm:p-6 md:p-8 space-y-8 bg-gradient-to-br from-white to-slate-50">
-        {/* ข้อความหลัก */}
         <div className="space-y-6">
           <div className="form-control">
             <label className="label flex-col items-start gap-0.5 sm:flex-row sm:items-center">
@@ -1876,7 +1863,6 @@ const ServiceDetailEditorView = ({
           </div>
         </div>
 
-        {/* รูปรวม */}
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4 flex-wrap bg-sky-50 border border-sky-100 rounded-xl p-4">
             <div>
@@ -1966,7 +1952,6 @@ const ServiceDetailEditorView = ({
           )}
         </div>
 
-        {/* หัวข้อย่อย */}
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-2">
             <div>
@@ -1988,7 +1973,8 @@ const ServiceDetailEditorView = ({
 
           {sections.length === 0 && (
             <div className="text-sm text-slate-500 border border-dashed border-slate-300 rounded-xl py-6 px-4 bg-white">
-              ยังไม่มีหัวข้อย่อย ลองเพิ่มหัวข้อ เช่น "เปลี่ยนยาง", "เปลี่ยนแบต" เป็นต้น
+              ยังไม่มีหัวข้อย่อย ลองเพิ่มหัวข้อ เช่น "เปลี่ยนยาง", "เปลี่ยนแบตเตอรี่"
+              เป็นต้น
             </div>
           )}
 
@@ -2142,66 +2128,68 @@ const ServiceDetailEditorView = ({
   );
 };
 
-
-
-const ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_KEY;
+/* ---------- ส่วนหลักของหน้า Admin (โหลด config + layout) ---------- */
 
 function AdminPageInner() {
-  const [activeSection, setActiveSection] =
-    useState<SectionId>("dashboard");
-  const [config, setConfig] = useState<SiteConfig>(createEmptyConfig);
+  const [config, setConfig] = useState<SiteConfig>(createEmptyConfig());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<SectionId>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const load = async () => {
+    const fetchConfig = async () => {
       try {
-        const res = await fetch("/api/admin/site");
-        if (!res.ok) {
-          setConfig(createEmptyConfig());
-        } else {
-          const json = await res.json();
-          setConfig(json as SiteConfig);
-        }
-      } catch {
-        setConfig(createEmptyConfig());
+        const res = await fetch("/api/admin/config");
+        if (!res.ok) throw new Error("Failed to load config");
+        const json = await res.json();
+        setConfig({
+          ...createEmptyConfig(),
+          ...json,
+        });
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    load();
+
+    fetchConfig();
   }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/site", {
-        method: "PUT",
+      const res = await fetch("/api/admin/config", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
       });
-      const json = await res.json();
-      if (json.ok) {
-        setNotice("Changes saved successfully!");
-      } else {
-        setNotice("Save failed.");
-      }
-    } catch {
-      setNotice("Save failed.");
+      if (!res.ok) throw new Error("Failed to save config");
+
+      setNotice("บันทึกข้อมูลเรียบร้อยแล้ว");
+      setTimeout(() => setNotice(null), 3000);
+    } catch (err) {
+      console.error(err);
+      setNotice("บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่");
+      setTimeout(() => setNotice(null), 4000);
     } finally {
       setSaving(false);
-      setTimeout(() => setNotice(""), 3000);
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <span className="text-slate-500 text-sm">
-          กำลังโหลดข้อมูล Admin...
-        </span>
+        <div className="bg-white border border-slate-200 rounded-2xl px-6 py-4 text-center space-y-2">
+          <p className="text-sm font-semibold text-slate-900">
+            กำลังโหลดข้อมูลเว็บ...
+          </p>
+          <p className="text-xs text-slate-500">
+            โปรดรอสักครู่ ระบบกำลังดึงค่าจากเซิร์ฟเวอร์
+          </p>
+        </div>
       </div>
     );
   }
@@ -2234,9 +2222,7 @@ function AdminPageInner() {
 
       <main className="pt-20 md:pt-20 md:ml-64">
         <div className="p-3 sm:p-4 md:p-8 max-w-6xl mx-auto space-y-6">
-          {activeSection === "dashboard" && (
-            <DashboardView config={config} />
-          )}
+          {activeSection === "dashboard" && <DashboardView config={config} />}
 
           {activeSection === "hero" && (
             <HeroEditorView config={config} setConfig={setConfig} />
@@ -2247,20 +2233,19 @@ function AdminPageInner() {
           )}
 
           {activeSection === "homeGallery" && (
-  <HomeGalleryEditorView config={config} setConfig={setConfig} />
-)}
+            <HomeGalleryEditorView config={config} setConfig={setConfig} />
+          )}
 
           {activeSection === "topics" && (
             <TopicsEditorView config={config} setConfig={setConfig} />
           )}
-{activeSection === "theme" && (
-  <ThemeEditorView config={config} setConfig={setConfig} />
-)}
+
+          {activeSection === "theme" && (
+            <ThemeEditorView config={config} setConfig={setConfig} />
+          )}
+
           {activeSection === "serviceDetail" && (
-            <ServiceDetailEditorView
-              config={config}
-              setConfig={setConfig}
-            />
+            <ServiceDetailEditorView config={config} setConfig={setConfig} />
           )}
 
           {activeSection === "contact" && (
@@ -2272,11 +2257,47 @@ function AdminPageInner() {
   );
 }
 
-export default function AdminGuardPage() {
-  const searchParams = useSearchParams();
-  const key = searchParams.get("key");
+/* ---------- Guard ด้วย ?key= โดยไม่ใช้ useSearchParams ---------- */
 
-  if (!ADMIN_KEY) {
+function AdminGuardInner() {
+  const [status, setStatus] = useState<
+    "checking" | "no-key" | "unauthorized" | "ok"
+  >("checking");
+
+  useEffect(() => {
+    if (!ADMIN_KEY) {
+      setStatus("no-key");
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get("key");
+
+    if (key === ADMIN_KEY) {
+      setStatus("ok");
+    } else {
+      setStatus("unauthorized");
+    }
+  }, []);
+
+  if (status === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="bg-white border border-slate-200 rounded-2xl px-6 py-4 text-center space-y-2">
+          <p className="text-sm font-semibold text-slate-900">
+            กำลังตรวจสอบสิทธิ์เข้าใช้งาน...
+          </p>
+          <p className="text-xs text-slate-500">
+            โปรดรอสักครู่ หรือเช็คว่าลิงก์ที่ใช้มี ?key=... ครบถ้วน
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "no-key") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="bg-white border border-slate-200 rounded-2xl px-6 py-4 text-center space-y-2">
@@ -2284,14 +2305,14 @@ export default function AdminGuardPage() {
             ยังไม่ได้ตั้งค่า ADMIN KEY
           </p>
           <p className="text-xs text-slate-500">
-            โปรดตั้งค่า NEXT_PUBLIC_ADMIN_KEY ใน .env.local และบน Vercel
+            โปรดตั้งค่า NEXT_PUBLIC_ADMIN_KEY ในไฟล์ .env.local และบน Vercel
           </p>
         </div>
       </div>
     );
   }
 
-  if (key !== ADMIN_KEY) {
+  if (status === "unauthorized") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="bg-white border border-slate-200 rounded-2xl px-6 py-4 text-center space-y-2">
@@ -2299,7 +2320,7 @@ export default function AdminGuardPage() {
             ไม่อนุญาตให้เข้าถึงหน้า Admin
           </p>
           <p className="text-xs text-slate-500">
-            โปรดใช้ลิงก์ที่ถูกต้องที่มี key แนบมาด้วย
+            โปรดตรวจสอบว่าลิงก์มีพารามิเตอร์ ?key= ที่ถูกต้อง
           </p>
         </div>
       </div>
@@ -2307,4 +2328,8 @@ export default function AdminGuardPage() {
   }
 
   return <AdminPageInner />;
+}
+
+export default function AdminGuardPage() {
+  return <AdminGuardInner />;
 }
