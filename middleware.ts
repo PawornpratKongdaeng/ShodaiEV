@@ -2,45 +2,34 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const ADMIN_COOKIE = "admin_auth";
-
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, searchParams } = req.nextUrl;
 
-  // ทำงานเฉพาะ route ที่ขึ้นต้นด้วย /admin เท่านั้น
-  if (!pathname.startsWith("/admin")) {
-    return NextResponse.next();
+  const isAdmin = pathname.startsWith("/admin");
+  const isLogin = pathname === "/admin/login";
+
+  const hasAuth = !!req.cookies.get("admin_auth")?.value;
+
+  // ถ้ายังไม่ล็อกอิน และกำลังเข้า /admin (แต่ไม่ใช่ /admin/login)
+  if (isAdmin && !isLogin && !hasAuth) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/admin/login";
+    url.searchParams.set("callback", pathname);
+    return NextResponse.redirect(url);
   }
 
-  // --- ปล่อยทุก path ที่เป็นหน้า login ผ่านหมด ---
-  // /admin/login
-  // /admin/login/ 
-  const isLoginPath =
-    pathname === "/admin/login" ||
-    pathname === "/admin/login/";
-
-  if (isLoginPath) {
-    return NextResponse.next();
-  }
-
-  // ถ้ามี path แปลก ๆ ที่เริ่มด้วย /admin/login (เช่น /admin/login/callback)
-  // ก็ไม่ควรเอามาเช็ค cookie เดี๋ยวมัน loop
-  if (pathname.startsWith("/admin/login")) {
-    return NextResponse.next();
-  }
-
-  // --- จากนี้คือหน้า admin จริง ๆ ที่ต้องล็อกอิน ---
-  const token = req.cookies.get(ADMIN_COOKIE)?.value;
-
-  if (!token) {
-    const loginUrl = new URL("/admin/login", req.url);
-    loginUrl.searchParams.set("callback", pathname);
-    return NextResponse.redirect(loginUrl);
+  // ถ้าล็อกอินแล้ว แต่ดันเข้าหน้า login → เด้งไป /admin
+  if (isLogin && hasAuth) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/admin";
+    url.searchParams.delete("callback");
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
 }
 
+// ให้ middleware ทำงานแค่ /admin/*
 export const config = {
   matcher: ["/admin/:path*"],
 };

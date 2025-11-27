@@ -1,35 +1,26 @@
-// app/api/admin/login/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import cookie from "cookie";
+import { NextResponse } from "next/server";
 
-const ADMIN_USER = process.env.ADMIN_USER;
-const ADMIN_PASS = process.env.ADMIN_PASS;
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   const { username, password } = await req.json();
 
-  const ok = username === ADMIN_USER && password === ADMIN_PASS;
-
+  // เช็ค user/pass ตาม logic
+  const ok = username === "admin" && password === "1234";
   if (!ok) {
     return NextResponse.json(
-      { ok: false, message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" },
+      { ok: false, message: "Username หรือ Password ไม่ถูกต้อง" },
       { status: 401 }
     );
   }
 
-  // เซ็ต cookie ง่าย ๆ ว่า login แล้ว
   const res = NextResponse.json({ ok: true });
 
-  res.headers.append(
-    "Set-Cookie",
-    cookie.serialize("admin_auth", "1", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 4, // 4 ชั่วโมง
-    })
-  );
+  res.cookies.set("admin_auth", "some-token", {
+    httpOnly: true,
+    secure: true,          // บน Vercel ต้องเป็น true (https)
+    sameSite: "lax",
+    path: "/admin",
+    maxAge: 60 * 60 * 24,  // 1 วัน
+  });
 
   return res;
 }

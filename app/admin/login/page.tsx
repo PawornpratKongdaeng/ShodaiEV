@@ -13,6 +13,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
 
   const callback = searchParams.get("callback") || "/admin";
+  const ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_KEY;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
