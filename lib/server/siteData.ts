@@ -40,7 +40,6 @@ export type ServiceDetailItem = {
   sections?: ServiceDetailSection[];
 };
 
-// 🎨 Theme type
 export type ThemeColors = {
   primary: string;
   primarySoft: string;
@@ -50,7 +49,39 @@ export type ThemeColors = {
   text: string;
 };
 
-// ✅ ต้อง export defaultTheme ออกมาด้วย
+export type SiteConfig = {
+  seoServiceDetailDescriptionSuffix: string;
+  seoServiceDetailTitlePrefix: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroImageUrl?: string;
+  phone?: string;
+  line?: string;
+  lineUrl?: string;
+  facebook?: string;
+  mapUrl?: string;
+
+  businessName?: string;
+  businessAddress?: string;
+  businessGeoLat?: number;
+  businessGeoLng?: number;
+  seoTitleHome?: string;
+  seoDescriptionHome?: string;
+
+  services: ServiceItem[];
+  products?: ProductItem[];
+  productsSections?: {
+    home: ProductItem[];
+    page2: ProductItem[];
+  };
+  topics?: TopicItem[];
+  serviceDetails?: ServiceDetailItem[];
+  theme?: ThemeColors;
+  homeGallery?: string[];
+};
+
+const filePath = path.join(process.cwd(), "data", "site.json");
+
 export const defaultTheme: ThemeColors = {
   primary: "#f97316",
   primarySoft: "#ffedd5",
@@ -60,33 +91,6 @@ export const defaultTheme: ThemeColors = {
   text: "#0f172a",
 };
 
-export type SiteConfig = {
-  heroTitle?: string;
-  heroSubtitle?: string;
-  heroImageUrl?: string;
-  phone?: string;
-  line?: string;
-  lineUrl?: string;
-  facebook?: string;
-  mapUrl?: string;
-  services: ServiceItem[];
-  products?: ProductItem[];
-  productsSections?: {
-    home: ProductItem[];
-    page2: ProductItem[];
-  };
-  topics?: TopicItem[];
-  serviceDetails?: ServiceDetailItem[];
-
-  // 🖼 รูป gallery หน้าแรก
-  homeGallery?: string[];
-
-  // 🎨 theme สีทั้งหมด
-  theme?: ThemeColors;
-};
-
-const filePath = path.join(process.cwd(), "data", "site.json");
-
 const defaultConfig: SiteConfig = {
   heroTitle: "ShodaiEV",
   heroSubtitle: "ขายของเกี่ยวกับรถ",
@@ -95,6 +99,8 @@ const defaultConfig: SiteConfig = {
   lineUrl: "",
   facebook: "",
   mapUrl: "",
+  businessName: "ShodaiEV",
+  businessAddress: "",
   services: [],
   products: [],
   productsSections: {
@@ -105,6 +111,8 @@ const defaultConfig: SiteConfig = {
   serviceDetails: [],
   homeGallery: [],
   theme: defaultTheme,
+  seoServiceDetailDescriptionSuffix: "",
+  seoServiceDetailTitlePrefix: ""
 };
 
 export async function loadSiteData(): Promise<SiteConfig> {
@@ -125,7 +133,9 @@ export async function loadSiteData(): Promise<SiteConfig> {
       homeGallery: Array.isArray(parsed.homeGallery)
         ? parsed.homeGallery
         : [],
-      theme: parsed.theme ?? defaultTheme,
+      theme: parsed.theme
+        ? { ...defaultTheme, ...parsed.theme }
+        : defaultTheme,
     };
   } catch (err: any) {
     if (err.code === "ENOENT") {

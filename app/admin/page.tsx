@@ -37,6 +37,13 @@ const createEmptyConfig = (): SiteConfig => ({
   },
   topics: [],
   serviceDetails: [],
+  seoTitleHome: "",
+  seoDescriptionHome: "",
+  businessGeoLat: undefined,
+  businessAddress: "",
+  businessName: "",
+  seoServiceDetailDescriptionSuffix: "",
+  seoServiceDetailTitlePrefix: ""
 });
 
 type AdminSidebarProps = {

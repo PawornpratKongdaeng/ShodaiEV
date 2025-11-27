@@ -30,7 +30,7 @@ export default async function HomePage() {
   const telephone = data.phone || "";
   const mapUrl = data.mapUrl || "";
   const lat = data.businessGeoLat;
-  const lng = data.businessGeoLng; // ✅ แก้ตรงนี้
+  const lng = data.businessGeoLat; // ✅ แก้ตรงนี้
   const ogImage = data.heroImageUrl || "";
 
   const jsonLdLocalBusiness = {
@@ -108,7 +108,7 @@ export default async function HomePage() {
               ดูรายละเอียดบริการทั้งหมดที่เรามีให้
             </p>
             <Link
-              href="/page/product" // ✅ แก้ path
+              href="/page/products" // ✅ แก้ path
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-semibold bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 transition-all shadow-md shadow-orange-200 hover:shadow-lg hover:translate-y-[1px]"
             >
               <span>ดูบริการทั้งหมด</span>

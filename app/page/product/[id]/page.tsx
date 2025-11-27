@@ -62,7 +62,7 @@ export async function generateMetadata(
     topic.id
   )}`;
 
-  const ogImage = detail?.images?.[0] || data.ogImageUrl || "";
+  const ogImage = detail?.images?.[0] || data.heroImageUrl || "";
 
   return {
     title,
