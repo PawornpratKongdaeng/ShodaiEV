@@ -22,7 +22,7 @@ type ProductDetailPageProps = {
   params: Promise<ProductDetailPageParams>;
 };
 
-// 🧠 Metadata per service
+export const dynamic = "force-dynamic";
 export async function generateMetadata(
   props: { params: ProductDetailPageParams }
 ): Promise<Metadata> {

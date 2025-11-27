@@ -11,7 +11,7 @@ import Script from "next/script";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://shodaiev.com";
-
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "ShodaiEV | ซ่อมรถไฟฟ้า 2 ล้อ 3 ล้อ บริการถึงบ้าน",
   description:

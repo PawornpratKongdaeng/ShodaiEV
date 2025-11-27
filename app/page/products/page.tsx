@@ -4,6 +4,7 @@ import Header from "../../components/user/Header";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://shodaiev.com";
+  export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "บริการทั้งหมด | ShodaiEV",
