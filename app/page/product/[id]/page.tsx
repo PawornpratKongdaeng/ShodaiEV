@@ -23,26 +23,29 @@ type ProductDetailPageProps = {
 };
 
 export const dynamic = "force-dynamic";
+
 export async function generateMetadata(
-  props: { params: ProductDetailPageParams }
+  props: { params: Promise<ProductDetailPageParams> }
 ): Promise<Metadata> {
-  const { id } = props.params;
+  const { id } = await props.params;
   const decodedId = decodeURIComponent(id);
 
   const data: SiteConfig = await loadSiteData();
   const topics: TopicItem[] = Array.isArray(data.topics)
     ? (data.topics as TopicItem[])
     : [];
-  const details: ServiceDetailItem[] = Array.isArray(
-    data.serviceDetails
-  )
+  const details: ServiceDetailItem[] = Array.isArray(data.serviceDetails)
     ? (data.serviceDetails as ServiceDetailItem[])
     : [];
 
   const topic = topics.find((t) => t.id === decodedId);
+
   if (!topic) {
     return {
-      title: "ไม่พบบริการ | ShodaiEV",
+      title: {
+        absolute: "ShodaiEV",
+      },
+      description: "ไม่พบบริการที่คุณต้องการ",
     };
   }
 
@@ -145,7 +148,6 @@ export default async function ProductDetailPage({
 
       <Header phone={data.phone ?? ""} line={data.line ?? ""} />
 
-      {/* HERO / BREADCRUMB */}
       <section className="bg-[var(--color-surface)] py-8 sm:py-10 md:py-12 px-4 sm:px-6 border-b border-[var(--color-primary-soft)]">
         <div className="max-w-5xl mx-auto space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm text-[var(--color-text)]/70">
@@ -189,10 +191,8 @@ export default async function ProductDetailPage({
         </div>
       </section>
 
-      {/* MAIN CONTENT */}
       <section className="py-8 sm:py-10 px-4 sm:px-6 bg-[var(--color-bg)]">
         <div className="max-w-5xl mx-auto grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          {/* LEFT: IMAGES */}
           <div className="space-y-4">
             <h2 className="text-base sm:text-lg font-semibold mb-2">
               รูปภาพตัวอย่างงาน / บริการ
@@ -206,7 +206,6 @@ export default async function ProductDetailPage({
 
             {images.length > 0 && (
               <div className="space-y-4">
-                {/* main image */}
                 <div className="overflow-hidden rounded-xl border border-[var(--color-primary-soft)] bg-[var(--color-surface)] cursor-pointer">
                   <a href="#img-0">
                     <img
@@ -217,7 +216,6 @@ export default async function ProductDetailPage({
                   </a>
                 </div>
 
-                {/* thumbnails */}
                 {images.length > 1 &&
                   (() => {
                     const thumbImages = images.slice(1, 1 + THUMB_LIMIT);
@@ -261,7 +259,6 @@ export default async function ProductDetailPage({
             )}
           </div>
 
-          {/* RIGHT: DETAIL */}
           <aside className="space-y-7">
             <div className="bg-[var(--color-bg)] rounded-xl border border-[var(--color-primary-soft)] p-4 sm:p-5 shadow-sm">
               <h2 className="text-base sm:text-lg font-semibold mb-2">
@@ -288,7 +285,7 @@ export default async function ProductDetailPage({
 
             <div className="flex flex-wrap gap-3">
               <Link
-                href="/page/product"
+                href="/page/products"
                 className="btn btn-outline btn-sm border-[var(--color-primary-soft)] text-[var(--color-primary)] hover:bg-[var(--color-surface)]"
               >
                 ← กลับไปหน้ารวมบริการ
@@ -308,7 +305,6 @@ export default async function ProductDetailPage({
         </div>
       </section>
 
-      {/* SECTION DETAILS */}
       {sections.length > 0 && (
         <section className="pb-10 px-4 sm:px-6 bg-[var(--color-bg)]">
           <div className="max-w-5xl mx-auto space-y-4">
@@ -376,7 +372,6 @@ export default async function ProductDetailPage({
         </section>
       )}
 
-      {/* LIGHTBOX หลัก */}
       {images.map((url, index) => {
         const prevIndex = index === 0 ? images.length - 1 : index - 1;
         const nextIndex = index === images.length - 1 ? 0 : index + 1;
@@ -427,7 +422,6 @@ export default async function ProductDetailPage({
         );
       })}
 
-      {/* LIGHTBOX per section */}
       {sections.length > 0 &&
         sections.map((sec, sIdx) => {
           const secImages = sec.images ?? [];

@@ -1487,8 +1487,9 @@ const TopicsEditorView = ({ config, setConfig }: TopicsEditorProps) => {
 
 type ServiceDetailEditorProps = {
   config: SiteConfig;
-  setConfig: (cfg: SiteConfig) => void;
+  setConfig: React.Dispatch<React.SetStateAction<SiteConfig>>;
 };
+
 
 const ServiceDetailEditorView = ({
   config,
@@ -1505,30 +1506,6 @@ const ServiceDetailEditorView = ({
   const [selectedTopicId, setSelectedTopicId] = useState<string>(
     topics[0]?.id ?? ""
   );
-
-  const findDetailForTopic = (topicId: string): ServiceDetailItem | null => {
-    if (!topicId) return null;
-    const found = details.find((d) => d.topicId === topicId);
-    if (found) {
-      return {
-        ...found,
-        images: found.images || [],
-        sections: found.sections || [],
-      };
-    }
-    return {
-      id: uuid(),
-      topicId,
-      title: "",
-      description: "",
-      images: [],
-      sections: [],
-    };
-  };
-
-  const [draft, setDraft] = useState<ServiceDetailItem | null>(
-    findDetailForTopic(selectedTopicId)
-  );
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -1537,33 +1514,121 @@ const ServiceDetailEditorView = ({
     }
   }, [topics, selectedTopicId]);
 
-  useEffect(() => {
-    if (!selectedTopicId) return;
-    setDraft(findDetailForTopic(selectedTopicId));
-  }, [selectedTopicId, config.serviceDetails]);
-
   const handleChangeTopic = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newId = e.target.value;
     setSelectedTopicId(newId);
   };
 
-  const handleSaveDetail = () => {
-    if (!draft || !selectedTopicId) return;
+  const updateDetail = (
+    updater: (detail: ServiceDetailItem) => ServiceDetailItem
+  ) => {
+    if (!selectedTopicId) return;
 
-    const normalized: ServiceDetailItem = {
-      ...draft,
-      topicId: selectedTopicId,
-      id: draft.id || uuid(),
-      images: draft.images || [],
-      sections: draft.sections || [],
-    };
+    setConfig((prev) => {
+      const prevDetails: ServiceDetailItem[] = Array.isArray(
+        prev.serviceDetails
+      )
+        ? (prev.serviceDetails as ServiceDetailItem[])
+        : [];
 
-    const others = details.filter((d) => d.topicId !== selectedTopicId);
-    setConfig({
-      ...config,
-      serviceDetails: [...others, normalized],
+      const idx = prevDetails.findIndex(
+        (d) => d.topicId === selectedTopicId
+      );
+
+      const base: ServiceDetailItem =
+        idx !== -1
+          ? {
+              ...prevDetails[idx],
+              images: prevDetails[idx].images || [],
+              sections: prevDetails[idx].sections || [],
+            }
+          : {
+              id: "",
+              topicId: selectedTopicId,
+              title: "",
+              description: "",
+              images: [],
+              sections: [],
+            };
+
+      const updatedRaw = updater(base);
+      const updated: ServiceDetailItem = {
+        ...updatedRaw,
+        topicId: selectedTopicId,
+        id: updatedRaw.id || base.id || uuid(),
+        images: updatedRaw.images || [],
+        sections: updatedRaw.sections || [],
+      };
+
+      let nextDetails: ServiceDetailItem[];
+      if (idx !== -1) {
+        nextDetails = [...prevDetails];
+        nextDetails[idx] = updated;
+      } else {
+        nextDetails = [...prevDetails, updated];
+      }
+
+      return {
+        ...prev,
+        serviceDetails: nextDetails,
+      };
     });
   };
+
+  if (topics.length === 0) {
+    return (
+      <div className="bg-gradient-to-br from-white to-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sky-50 flex items-center justify-center">
+            <span className="text-3xl">📝</span>
+          </div>
+          <h3 className="text-base md:text-xl font-bold text-slate-900 mb-1">
+            ยังไม่มี Service Topics
+          </h3>
+          <p className="text-xs md:text-sm text-slate-600">
+            โปรดไปเพิ่มหัวข้อในเมนู{" "}
+            <span className="font-semibold text-sky-700">หัวข้อบริการ</span>{" "}
+            ก่อน แล้วจึงกลับมาจัดการรายละเอียดบริการ
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentTopic = topics.find((t) => t.id === selectedTopicId) ?? topics[0];
+  const currentDetail: ServiceDetailItem | null = currentTopic
+    ? (() => {
+        const found = details.find((d) => d.topicId === currentTopic.id);
+        if (found) {
+          return {
+            ...found,
+            images: found.images || [],
+            sections: found.sections || [],
+          };
+        }
+        return {
+          id: "",
+          topicId: currentTopic.id,
+          title: "",
+          description: "",
+          images: [],
+          sections: [],
+        };
+      })()
+    : null;
+
+  if (!currentTopic || !currentDetail) {
+    return (
+      <div className="bg-gradient-to-br from-white to-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <p className="text-center text-sm text-slate-600">
+          เลือกหัวข้อด้านบนเพื่อเริ่มเพิ่มรายละเอียด
+        </p>
+      </div>
+    );
+  }
+
+  const images = currentDetail.images || [];
+  const sections = currentDetail.sections || [];
 
   const handleFilesChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -1592,11 +1657,10 @@ const ServiceDetailEditorView = ({
         }
       }
 
-      setDraft((prev) =>
-        prev
-          ? { ...prev, images: [...(prev.images || []), ...newUrls] }
-          : prev
-      );
+      updateDetail((d) => ({
+        ...d,
+        images: [...(d.images || []), ...newUrls],
+      }));
     } catch (err) {
       console.error(err);
       alert("เกิดข้อผิดพลาดระหว่างอัปโหลดรูป");
@@ -1607,30 +1671,25 @@ const ServiceDetailEditorView = ({
   };
 
   const removeImage = (url: string) => {
-    setDraft((prev) => {
-      if (!prev) return prev;
-      const nextImages = (prev.images || []).filter((img) => img !== url);
-      return { ...prev, images: nextImages };
-    });
+    updateDetail((d) => ({
+      ...d,
+      images: (d.images || []).filter((img) => img !== url),
+    }));
   };
 
   const addSection = () => {
-    setDraft((prev) => {
-      if (!prev) return prev;
-      const sections = prev.sections || [];
-      return {
-        ...prev,
-        sections: [
-          ...sections,
-          {
-            id: uuid(),
-            title: "",
-            description: "",
-            images: [],
-          },
-        ],
-      };
-    });
+    updateDetail((d) => ({
+      ...d,
+      sections: [
+        ...(d.sections || []),
+        {
+          id: uuid(),
+          title: "",
+          description: "",
+          images: [],
+        },
+      ],
+    }));
   };
 
   const updateSectionField = (
@@ -1638,22 +1697,20 @@ const ServiceDetailEditorView = ({
     field: "title" | "description",
     value: string
   ) => {
-    setDraft((prev) => {
-      if (!prev) return prev;
-      const sections = prev.sections || [];
+    updateDetail((d) => {
+      const sections = d.sections || [];
       const next = sections.map((s, i) =>
         i === index ? { ...s, [field]: value } : s
       );
-      return { ...prev, sections: next };
+      return { ...d, sections: next };
     });
   };
 
   const removeSection = (index: number) => {
-    setDraft((prev) => {
-      if (!prev) return prev;
-      const sections = prev.sections || [];
+    updateDetail((d) => {
+      const sections = d.sections || [];
       const next = sections.filter((_, i) => i !== index);
-      return { ...prev, sections: next };
+      return { ...d, sections: next };
     });
   };
 
@@ -1685,17 +1742,17 @@ const ServiceDetailEditorView = ({
         }
       }
 
-      setDraft((prev) => {
-        if (!prev) return prev;
-        const sections = prev.sections || [];
+      updateDetail((d) => {
+        const sections = d.sections || [];
         const target = sections[index];
-        if (!target) return prev;
+        if (!target) return d;
+
         const nextSections = sections.map((s, i) =>
           i === index
             ? { ...s, images: [...(s.images || []), ...newUrls] }
             : s
         );
-        return { ...prev, sections: nextSections };
+        return { ...d, sections: nextSections };
       });
     } catch (err) {
       console.error(err);
@@ -1707,53 +1764,19 @@ const ServiceDetailEditorView = ({
   };
 
   const removeSectionImage = (index: number, url: string) => {
-    setDraft((prev) => {
-      if (!prev) return prev;
-      const sections = prev.sections || [];
+    updateDetail((d) => {
+      const sections = d.sections || [];
       const target = sections[index];
-      if (!target) return prev;
+      if (!target) return d;
+
       const nextSections = sections.map((s, i) =>
         i === index
           ? { ...s, images: (s.images || []).filter((img) => img !== url) }
           : s
       );
-      return { ...prev, sections: nextSections };
+      return { ...d, sections: nextSections };
     });
   };
-
-  if (topics.length === 0) {
-    return (
-      <div className="bg-gradient-to-br from-white to-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="text-center max-w-md mx-auto">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sky-50 flex items-center justify-center">
-            <span className="text-3xl">📝</span>
-          </div>
-          <h3 className="text-base md:text-xl font-bold text-slate-900 mb-1">
-            ยังไม่มี Service Topics
-          </h3>
-          <p className="text-xs md:text-sm text-slate-600">
-            โปรดไปเพิ่มหัวข้อในเมนู{" "}
-            <span className="font-semibold text-sky-700">หัวข้อบริการ</span>{" "}
-            ก่อน แล้วจึงกลับมาจัดการรายละเอียดบริการ
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!draft) {
-    return (
-      <div className="bg-gradient-to-br from-white to-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
-        <p className="text-center text-sm text-slate-600">
-          เลือกหัวข้อด้านบนเพื่อเริ่มเพิ่มรายละเอียด
-        </p>
-      </div>
-    );
-  }
-
-  const currentTopic = topics.find((t) => t.id === selectedTopicId);
-  const images = draft.images || [];
-  const sections = draft.sections || [];
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -1781,7 +1804,7 @@ const ServiceDetailEditorView = ({
           </span>
           <select
             className="select select-bordered w-full bg-white border-slate-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 text-xs sm:text-sm"
-            value={selectedTopicId}
+            value={currentTopic.id}
             onChange={handleChangeTopic}
           >
             {topics.map((t) => (
@@ -1793,28 +1816,26 @@ const ServiceDetailEditorView = ({
         </div>
       </div>
 
-      {currentTopic && (
-        <div className="px-4 sm:px-6 py-3 bg-sky-50 border-b border-sky-100">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-sky-800">
-                หัวข้อ: {currentTopic.title}
-              </p>
-            </div>
-            <p className="text-[11px] text-sky-700">
-              รูปทั้งหมดตอนนี้:{" "}
-              <span className="font-semibold">
-                {images.length +
-                  sections.reduce(
-                    (sum, s) => sum + (s.images?.length || 0),
-                    0
-                  )}{" "}
-                รูป
-              </span>
+      <div className="px-4 sm:px-6 py-3 bg-sky-50 border-b border-sky-100">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-sky-800">
+              หัวข้อ: {currentTopic.title}
             </p>
           </div>
+          <p className="text-[11px] text-sky-700">
+            รูปทั้งหมดตอนนี้:{" "}
+            <span className="font-semibold">
+              {images.length +
+                sections.reduce(
+                  (sum, s) => sum + (s.images?.length || 0),
+                  0
+                )}{" "}
+              รูป
+            </span>
+          </p>
         </div>
-      )}
+      </div>
 
       <div className="p-4 sm:p-6 md:p-8 space-y-8 bg-gradient-to-br from-white to-slate-50">
         <div className="space-y-6">
@@ -1829,11 +1850,9 @@ const ServiceDetailEditorView = ({
             </label>
             <input
               className="input input-bordered bg-white border-slate-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 text-sm"
-              value={draft.title}
+              value={currentDetail.title}
               onChange={(e) =>
-                setDraft((prev) =>
-                  prev ? { ...prev, title: e.target.value } : prev
-                )
+                updateDetail((d) => ({ ...d, title: e.target.value }))
               }
               placeholder={
                 currentTopic?.title
@@ -1852,11 +1871,12 @@ const ServiceDetailEditorView = ({
             <textarea
               className="textarea textarea-bordered bg-white border-slate-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 text-sm"
               rows={6}
-              value={draft.description || ""}
+              value={currentDetail.description || ""}
               onChange={(e) =>
-                setDraft((prev) =>
-                  prev ? { ...prev, description: e.target.value } : prev
-                )
+                updateDetail((d) => ({
+                  ...d,
+                  description: e.target.value,
+                }))
               }
               placeholder="ใส่รายละเอียดบริการโดยรวม เช่น ขอบเขต, ขั้นตอนหลัก, เงื่อนไข ฯลฯ"
             />
@@ -2007,7 +2027,11 @@ const ServiceDetailEditorView = ({
                             className="input input-bordered bg-white border-slate-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 text-sm"
                             value={sec.title}
                             onChange={(e) =>
-                              updateSectionField(index, "title", e.target.value)
+                              updateSectionField(
+                                index,
+                                "title",
+                                e.target.value
+                              )
                             }
                             placeholder="เช่น เปลี่ยนยาง, เปลี่ยนแบตเตอรี่"
                           />
@@ -2097,7 +2121,9 @@ const ServiceDetailEditorView = ({
                               </div>
                               <button
                                 type="button"
-                                onClick={() => removeSectionImage(index, url)}
+                                onClick={() =>
+                                  removeSectionImage(index, url)
+                                }
                                 className="px-2 py-1 border-t border-slate-100 bg-slate-50 text-[11px] text-red-600 font-medium hover:bg-red-50"
                               >
                                 ลบรูป
@@ -2114,19 +2140,10 @@ const ServiceDetailEditorView = ({
           )}
         </div>
       </div>
-
-      <div className="px-4 sm:px-6 pb-4 pt-3 border-t border-slate-200 flex justify-end bg-white">
-        <button
-          className="px-6 sm:px-8 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium shadow-md shadow-sky-200 disabled:opacity-60 disabled:cursor-not-allowed"
-          onClick={handleSaveDetail}
-          disabled={uploading}
-        >
-          💾 บันทึกข้อมูล
-        </button>
-      </div>
     </div>
   );
 };
+
 
 /* ---------- ส่วนหลักของหน้า Admin (โหลด config + layout) ---------- */
 
