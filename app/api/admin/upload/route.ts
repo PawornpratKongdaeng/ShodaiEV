@@ -1,37 +1,33 @@
 // app/api/admin/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 
-export const runtime = "nodejs"; // ใช้ node ก็ได้ edge ก็ได้
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file") as File | null;
+    const file = formData.get("file");
 
-    if (!file) {
+    if (!(file instanceof File)) {
       return NextResponse.json(
-        { ok: false, error: "No file uploaded" },
+        { ok: false, error: "No file provided" },
         { status: 400 }
       );
     }
 
-    const filename = `shodaiev/${Date.now()}-${file.name}`;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString("base64");
 
-    // ✅ ส่ง file ตรง ๆ เข้า put ได้เลย
-    const blob = await put(filename, file, {
-      access: "public",
+    const mime = file.type || "image/png";
+    const dataUrl = `data:${mime};base64,${base64}`;
+
+    return NextResponse.json({
+      ok: true,
+      url: dataUrl,
     });
-
-    return NextResponse.json(
-      {
-        ok: true,
-        url: blob.url,
-      },
-      { status: 200 }
-    );
   } catch (err) {
-    console.error("Upload error:", err);
+    console.error("Upload error", err);
     return NextResponse.json(
       { ok: false, error: "Upload failed" },
       { status: 500 }

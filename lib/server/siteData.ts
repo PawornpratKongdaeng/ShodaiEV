@@ -1,8 +1,5 @@
 // lib/server/siteData.ts
-import fs from "fs/promises";
-import path from "path";
-import { put, list } from "@vercel/blob";
-
+import { getDb } from "./mongodb";
 
 export type ServiceItem = {
   id: string;
@@ -81,13 +78,6 @@ export type SiteConfig = {
   homeGallery?: string[];
 };
 
-const filePath = path.join(process.cwd(), "data", "site.json");
-
-// ใช้ตรวจว่าโปรเจกต์มี Blob token ไหม
-const hasBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
-// path ที่จะเก็บ config ใน Blob
-const CONFIG_BLOB_PATH = "config/site.json";
-
 export const defaultTheme: ThemeColors = {
   primary: "#f97316",
   primarySoft: "#ffedd5",
@@ -143,100 +133,35 @@ function normalizeConfig(raw: Partial<SiteConfig> | null): SiteConfig {
   };
 }
 
-/* ---------- โหลดจาก Blob ---------- */
-
-async function loadFromBlob(): Promise<SiteConfig> {
-  // หา blob ที่ path ตรงกับ CONFIG_BLOB_PATH
-  const { blobs } = await list({
-    prefix: CONFIG_BLOB_PATH,
-    limit: 1,
-  });
-
-  if (!blobs || blobs.length === 0) {
-    // ถ้ายังไม่มีไฟล์เลย → seed ด้วย defaultConfig
-    await saveToBlob(defaultConfig);
-    return defaultConfig;
-  }
-
-  const blob = blobs[0];
-
-  const res = await fetch(blob.url, {
-    // กัน cache เก่า
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch config blob");
-  }
-
-  const json = (await res.json()) as Partial<SiteConfig>;
-  return normalizeConfig(json);
-}
-
-async function saveToBlob(cfg: SiteConfig): Promise<void> {
-  const normalized = normalizeConfig(cfg);
-
-  await put(
-    CONFIG_BLOB_PATH,
-    JSON.stringify(normalized),
-    {
-      access: "public",
-      contentType: "application/json",
-      cacheControlMaxAge: 60,
-      // 👇 อันนี้คือ key สำคัญ
-      allowOverwrite: true,
-    }
-  );
-}
-
-
-/* ---------- Fallback เป็นไฟล์ local ---------- */
-
-async function loadFromFile(): Promise<SiteConfig> {
-  try {
-    const content = await fs.readFile(filePath, "utf8");
-    const parsed = JSON.parse(content);
-    return normalizeConfig(parsed);
-  } catch (err: any) {
-    if (err.code === "ENOENT") {
-      const normalized = normalizeConfig(defaultConfig);
-      const dir = path.dirname(filePath);
-      await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(
-        filePath,
-        JSON.stringify(normalized, null, 2),
-        "utf8"
-      );
-      return normalized;
-    }
-    throw err;
-  }
-}
-
-async function saveToFile(cfg: SiteConfig): Promise<void> {
-  const normalized = normalizeConfig(cfg);
-  const dir = path.dirname(filePath);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(
-    filePath,
-    JSON.stringify(normalized, null, 2),
-    "utf8"
-  );
-}
-
-/* ---------- ฟังก์ชันที่ใช้จริงในโปรเจกต์ ---------- */
+const COLLECTION = "site_config";
+const DOC_ID = "main";
 
 export async function loadSiteData(): Promise<SiteConfig> {
-  if (hasBlob) {
-    return loadFromBlob();
+  const db = await getDb();
+  const collection = db.collection<{ _id: string; data: SiteConfig }>(COLLECTION);
+  const doc = await collection.findOne({ _id: DOC_ID });
+
+  if (!doc || !doc.data) {
+    const normalized = normalizeConfig(defaultConfig);
+    await collection.updateOne(
+      { _id: DOC_ID },
+      { $set: { data: normalized } },
+      { upsert: true }
+    );
+    return normalized;
   }
-  return loadFromFile();
+
+  return normalizeConfig(doc.data);
 }
 
 export async function saveSiteData(data: SiteConfig): Promise<void> {
-  if (hasBlob) {
-    await saveToBlob(data);
-    return;
-  }
-  await saveToFile(data);
+  const db = await getDb();
+  const collection = db.collection<{ _id: string; data: SiteConfig }>(COLLECTION);
+  const normalized = normalizeConfig(data);
+
+  await collection.updateOne(
+    { _id: DOC_ID },
+    { $set: { data: normalized } },
+    { upsert: true }
+  );
 }
