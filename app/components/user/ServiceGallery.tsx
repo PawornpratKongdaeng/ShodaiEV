@@ -99,7 +99,7 @@ export default function ServiceGallery({ images = [] }: ServiceGalleryProps) {
                 <button
                   key={idx}
                   type="button"
-                  className="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition"
+                  className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition"
                   onClick={() => openLightbox(idx)}
                 >
                   <Image
