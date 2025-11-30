@@ -1,35 +1,27 @@
-// app/admin/login/page.tsx
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  // อ่าน callback จาก query string ด้วย window.location (ฝั่ง client ล้วน)
-  const [callback, setCallback] = useState<string>("/admin");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const url = new URL(window.location.href);
-      const cb = url.searchParams.get("callback");
-      if (cb) setCallback(cb);
-    } catch {
-      // เผื่อ error ก็ปล่อยไป ใช้ /admin ตามเดิม
-    }
-  }, []);
+  // callback ที่ middleware ส่งมา เช่น /admin
+  const callback = searchParams.get("callback") || "/admin";
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (submitting) return;
+
     setSubmitting(true);
-    setError("");
+    setError(null);
 
     try {
       const res = await fetch("/api/admin/login", {
@@ -39,85 +31,120 @@ export default function AdminLoginPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(data?.message || "เข้าสู่ระบบไม่สำเร็จ");
+        let msg = "เข้าสู่ระบบไม่สำเร็จ";
+
+        try {
+          const data = await res.json();
+          if (data?.message) msg = data.message;
+        } catch {
+          // ignore parse error
+        }
+
+        setError(msg);
         return;
       }
 
-      router.push(callback || "/admin");
+      // แค่ consume body เฉย ๆ (กัน warning)
+      await res.json().catch(() => {});
+
+      // ถ้า login ผ่าน → middleware จะอ่าน cookie แล้วอนุญาตให้เข้า /admin
+      router.replace(callback);
     } catch (err) {
-      console.error("admin login error:", err);
-      setError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+      console.error("login error", err);
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-full max-w-md mx-4">
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-2 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8">
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-3 w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center text-xl font-bold">
+            QD
+          </div>
+          <h1 className="text-lg sm:text-xl font-semibold text-slate-900">
             Admin Login
           </h1>
-          <p className="text-sm text-slate-500 mb-6 text-center">
-            เข้าสู่ระบบจัดการเว็บไซต์ ShodaiEV
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                ชื่อผู้ใช้
-              </label>
-              <input
-                type="text"
-                autoComplete="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm 
-                           focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="ชื่อผู้ใช้ผู้ดูแลระบบ"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                รหัสผ่าน
-              </label>
-              <input
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm 
-                           focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="รหัสผ่านผู้ดูแลระบบ"
-              />
-            </div>
-
-            {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 
-                         text-white font-semibold py-2.5 text-sm 
-                         hover:from-orange-600 hover:to-amber-600 
-                         disabled:opacity-60 disabled:cursor-not-allowed transition"
-            >
-              {submitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-            </button>
-          </form>
-
-          <p className="mt-4 text-xs text-slate-400 text-center">
-            ใช้สำหรับผู้ดูแลระบบเท่านั้น
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            เข้าสู่ระบบเพื่อจัดการคอนเทนต์หน้าเว็บ ShodaiEV
           </p>
         </div>
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Username
+            </label>
+            <input
+              type="text"
+              autoComplete="username"
+              className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent bg-white"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Password
+            </label>
+            <input
+              type="password"
+              autoComplete="current-password"
+              className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent bg-white"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs sm:text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 text-white text-sm font-semibold hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed shadow-md shadow-sky-200"
+          >
+            {submitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                กำลังเข้าสู่ระบบ...
+              </>
+            ) : (
+              <>เข้าสู่ระบบ</>
+            )}
+          </button>
+
+          <p className="text-[11px] text-slate-400 text-center mt-2">
+            หลังเข้าสู่ระบบสำเร็จ ระบบจะพาไปที่ {callback}
+          </p>
+        </form>
       </div>
-    </main>
+    </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="bg-white border border-slate-200 rounded-2xl px-6 py-4 text-center space-y-2">
+            <p className="text-sm font-semibold text-slate-900">
+              กำลังโหลดหน้าเข้าสู่ระบบ...
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <AdminLoginForm />
+    </Suspense>
   );
 }

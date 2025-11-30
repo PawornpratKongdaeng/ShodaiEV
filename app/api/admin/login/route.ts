@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/admin?key=shodai-admin-2025-Sa180930@",
+      path: "/admin",
       maxAge: 60 * 60 * 8, // 8 ชั่วโมง
     });
 
