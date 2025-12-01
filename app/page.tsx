@@ -1,3 +1,4 @@
+// app/page.tsx
 import Header from "./components/user/Header";
 import Hero from "./components/user/Hero";
 import ContactSection from "./components/user/Contact";
@@ -71,8 +72,11 @@ export default async function HomePage() {
     ].filter(Boolean),
   };
 
+  const products = data.products ?? [];
+  const homeGallery = data.homeGallery ?? [];
+
   return (
-    <main className="bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900">
       <Script
         id="ld-local-business"
         type="application/ld+json"
@@ -91,31 +95,32 @@ export default async function HomePage() {
 
       <Hero imageUrl={heroImages} />
 
-      <ServiceGallery images={data.homeGallery ?? []} />
+      <ServiceGallery images={homeGallery} />
 
-      <ProductsSection products={data.products ?? []} />
+      <ProductsSection products={products} />
 
       {/* Section บริการ (CTA ไป /page/products) */}
       <section
         id="services"
-        className="py-24 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 relative overflow-hidden"
+        className="py-16 sm:py-20 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 relative overflow-hidden"
       >
-        <div className="absolute inset-0 opacity-30 pointer-events-none">
+        {/* background decoration: แสดงแค่ tablet ขึ้นไปเพื่อลดภาระ mobile */}
+        <div className="absolute inset-0 opacity-30 pointer-events-none hidden sm:block">
           <div className="absolute top-10 left-10 w-72 h-72 bg-orange-200 rounded-full blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-200 rounded-full blur-3xl" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-block mb-4 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-orange-200 shadow-sm">
-              <span className="text-orange-600 font-semibold text-sm">
+          <div className="text-center mb-10 sm:mb-14">
+            <div className="inline-block mb-3 sm:mb-4 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-orange-200 shadow-sm">
+              <span className="text-orange-600 font-semibold text-xs sm:text-sm">
                 🔧 บริการมาตรฐาน
               </span>
             </div>
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-orange-600 via-red-500 to-amber-600 bg-clip-text text-transparent leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-orange-600 via-red-500 to-amber-600 bg-clip-text text-transparent leading-tight">
               บริการของเรา
             </h2>
-            <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            <p className="text-slate-600 text-sm sm:text-base md:text-lg max-w-xl sm:max-w-2xl mx-auto leading-relaxed">
               เลือกบริการที่ตรงกับความต้องการของคุณ
               <br />
               <span className="text-amber-600 font-medium">
@@ -125,20 +130,20 @@ export default async function HomePage() {
           </div>
 
           <div className="max-w-3xl mx-auto">
-            <div className="group relative bg-white rounded-3xl shadow-2xl shadow-orange-200/50 overflow-hidden border border-orange-100 hover:shadow-orange-300/60 transition-all duration-300 hover:-translate-y-1">
+            <div className="group relative bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-orange-200/50 overflow-hidden border border-orange-100 hover:shadow-orange-300/60 transition-all duration-300 hover:-translate-y-1">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-400 via-red-400 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute inset-[2px] bg-white rounded-3xl" />
+              <div className="absolute inset-[2px] bg-white rounded-2xl sm:rounded-3xl" />
 
-              <div className="relative p-10 md:p-12">
-                <div className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-orange-100 via-red-50 to-amber-100 flex items-center justify-center shadow-lg shadow-orange-200/50 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-5xl">⚡</span>
+              <div className="relative p-6 sm:p-8 md:p-10">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 sm:mb-8 rounded-2xl bg-gradient-to-br from-orange-100 via-red-50 to-amber-100 flex items-center justify-center shadow-lg shadow-orange-200/50 group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-4xl sm:text-5xl">⚡</span>
                 </div>
 
-                <h3 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-slate-900 text-center">
                   สำรวจบริการของเรา
                 </h3>
 
-                <p className="text-slate-600 text-lg mb-10 leading-relaxed">
+                <p className="text-slate-600 text-sm sm:text-base md:text-lg mb-8 sm:mb-10 leading-relaxed text-center">
                   ดูรายละเอียดบริการทั้งหมดที่เรามีให้
                   <br />
                   <span className="text-orange-600 font-medium">
@@ -146,28 +151,32 @@ export default async function HomePage() {
                   </span>
                 </p>
 
-                <Link
-                  href="/page/products"
-                  className="group/btn inline-flex items-center gap-3 px-10 py-5 rounded-full text-white font-bold text-lg bg-gradient-to-r from-orange-600 via-red-500 to-amber-600 hover:from-orange-700 hover:via-red-600 hover:to-amber-700 transition-all duration-300 shadow-xl shadow-orange-300/50 hover:shadow-2xl hover:shadow-orange-400/60 hover:scale-105 active:scale-100"
-                >
-                  <span>ดูบริการทั้งหมด</span>
-                  <span className="text-2xl group-hover/btn:translate-x-1 transition-transform duration-300">
-                    →
-                  </span>
-                </Link>
+                <div className="flex justify-center">
+                  <Link
+                    href="/page/products"
+                    className="group/btn inline-flex items-center gap-2 sm:gap-3 px-7 py-3.5 sm:px-9 sm:py-4 rounded-full text-white font-semibold sm:font-bold text-sm sm:text-base md:text-lg bg-gradient-to-r from-orange-600 via-red-500 to-amber-600 hover:from-orange-700 hover:via-red-600 hover:to-amber-700 transition-all duration-300 shadow-lg shadow-orange-300/50 hover:shadow-xl hover:shadow-orange-400/60 hover:scale-105 active:scale-100"
+                  >
+                    <span>ดูบริการทั้งหมด</span>
+                    <span className="text-xl sm:text-2xl group-hover/btn:translate-x-1 transition-transform duration-300">
+                      →
+                    </span>
+                  </Link>
+                </div>
 
-                <div className="mt-10 pt-8 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mt-8 sm:mt-9 pt-6 sm:pt-7 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xl">⚙️</span>
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg sm:text-xl">⚙️</span>
                     </div>
-                    <span className="text-sm font-medium">ช่างมืออาชีพ</span>
+                    <span className="text-xs sm:text-sm font-medium">
+                      ช่างมืออาชีพ
+                    </span>
                   </div>
                   <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xl">💯</span>
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg sm:text-xl">💯</span>
                     </div>
-                    <span className="text-sm font-medium">
+                    <span className="text-xs sm:text-sm font-medium">
                       รับประกันคุณภาพ
                     </span>
                   </div>
@@ -176,11 +185,6 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* future section */}
-      <section className="py-24 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 relative overflow-hidden">
-        {/* ... */}
       </section>
 
       <ContactSection

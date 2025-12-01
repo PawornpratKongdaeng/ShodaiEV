@@ -12,7 +12,6 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // scroll effect
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     handleScroll();
@@ -20,7 +19,6 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // auto close on resize (เปลี่ยนเป็น desktop)
   useEffect(() => {
     const close = () => setOpen(false);
     window.addEventListener("resize", close);
@@ -33,9 +31,9 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
   return (
     <>
       <motion.header
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 h-14 sm:h-16 transition-all duration-300 ${
           scrolled
             ? "bg-[var(--color-bg)] shadow-md border-b border-[var(--color-primary-soft)]"
@@ -53,7 +51,6 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
               </span>
             </a>
 
-            {/* Desktop */}
             <div className="hidden md:flex items-center gap-6">
               <div className="flex items-center gap-4">
                 {hasLine && (
@@ -61,7 +58,7 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
                     <img
                       src="/LINE_Brand_icon.png"
                       alt="LINE"
-                      className="h-7 w-7"
+                      className="h-6 w-6"
                     />
                     <span className="text-sm sm:text-base font-semibold text-[var(--color-primary)] break-all">
                       {line}
@@ -96,7 +93,6 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
               </motion.a>
             </div>
 
-            {/* Mobile button */}
             <button
               type="button"
               className="md:hidden relative w-9 h-9 flex items-center justify-center rounded-full border border-[var(--color-primary-soft)] bg-[var(--color-surface)]"
@@ -123,7 +119,6 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
             </button>
           </div>
 
-          {/* Mobile menu */}
           <AnimatePresence>
             {open && (
               <motion.div
@@ -139,7 +134,7 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
                       <img
                         src="/LINE_Brand_icon.png"
                         alt="LINE"
-                        className="h-6 w-6"
+                        className="h-5 w-5"
                       />
                       <span className="text-sm font-semibold text-[var(--color-primary)] break-all">
                         {line}
@@ -185,7 +180,6 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
         </div>
       </motion.header>
 
-      {/* spacer กัน content ไม่ให้โดน header กลืน */}
       <div className="h-14 sm:h-16" />
     </>
   );

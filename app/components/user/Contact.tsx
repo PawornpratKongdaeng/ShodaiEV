@@ -27,12 +27,12 @@ export default function Contact({
       id="contact"
       className="py-16 sm:py-20 lg:py-24 bg-[var(--color-surface)] px-4 sm:px-6"
     >
-      <div className="max-w-7xl mx-auto grid gap-10 lg:gap-16 lg:grid-cols-2 items-center">
+      <div className="max-w-7xl mx-auto grid gap-8 lg:gap-12 lg:grid-cols-2 items-center">
         <div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)] leading-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--color-text)] leading-tight">
             ShodaiEV
             <span
-              className="mt-3 block bg-clip-text text-transparent text-2xl sm:text-3xl lg:text-4xl leading-snug"
+              className="mt-3 block bg-clip-text text-transparent text-xl sm:text-2xl lg:text-3xl leading-snug"
               style={{
                 backgroundImage:
                   "linear-gradient(to right, var(--color-accent), var(--color-primary), var(--color-primary-soft))",
@@ -47,15 +47,15 @@ export default function Contact({
           </h2>
         </div>
 
-        <div className="space-y-4 sm:space-y-5">
+        <div className="space-y-3 sm:space-y-4">
           {hasPhone && (
             <a
               href={`tel:${phone}`}
-              className="block w-full rounded-2xl bg-[var(--color-bg)] p-5 sm:p-6 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
+              className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
             >
               <div className="flex items-center">
-                <span className="text-xl">📞</span>
-                <span className="ml-4 text-base sm:text-lg text-[var(--color-text)] break-all">
+                <span className="text-lg sm:text-xl">📞</span>
+                <span className="ml-3 sm:ml-4 text-sm sm:text-base text-[var(--color-text)] break-all">
                   {phone}
                 </span>
               </div>
@@ -67,7 +67,7 @@ export default function Contact({
               href={lineUrl || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded-2xl bg-[var(--color-bg)] p-5 sm:p-6 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
+              className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
             >
               <div className="flex items-center">
                 <img
@@ -77,7 +77,7 @@ export default function Contact({
                   height={24}
                   className="w-6 h-6"
                 />
-                <span className="ml-4 text-base sm:text-lg text-[var(--color-text)] break-all">
+                <span className="ml-3 sm:ml-4 text-sm sm:text-base text-[var(--color-text)] break-all">
                   {line}
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default function Contact({
               href={facebook}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded-2xl bg-[var(--color-bg)] p-5 sm:p-6 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
+              className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
             >
               <div className="flex items-center">
                 <img
@@ -99,7 +99,7 @@ export default function Contact({
                   height={24}
                   className="w-6 h-6"
                 />
-                <span className="ml-4 text-base sm:text-lg text-[var(--color-text)] break-all">
+                <span className="ml-3 sm:ml-4 text-sm sm:text-base text-[var(--color-text)] break-all">
                   {facebook}
                 </span>
               </div>
@@ -111,11 +111,11 @@ export default function Contact({
               href={mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded-2xl bg-[var(--color-bg)] p-5 sm:p-6 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
+              className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
             >
               <div className="flex items-center">
-                <span className="text-xl">📍</span>
-                <span className="ml-4 text-base sm:text-lg text-[var(--color-text)]">
+                <span className="text-lg sm:text-xl">📍</span>
+                <span className="ml-3 sm:ml-4 text-sm sm:text-base text-[var(--color-text)]">
                   เปิดตำแหน่งร้านบน Google Maps
                 </span>
               </div>

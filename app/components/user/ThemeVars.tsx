@@ -1,4 +1,3 @@
-// app/components/ThemeVars.tsx
 "use client";
 
 import { useEffect } from "react";

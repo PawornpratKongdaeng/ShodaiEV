@@ -11,44 +11,44 @@ export default function ProductsSection({ products }: ProductsSectionProps) {
   if (!products || products.length === 0) return null;
 
   return (
-    <section id="products" className="py-16 sm:py-20 bg-white px-4 sm:px-6">
+    <section id="products" className="py-14 sm:py-16 bg-white px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 mb-5 sm:mb-7">
           สินค้าแนะนำ
         </h2>
 
-        <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {products.map((p) => (
-            <div
+            <article
               key={p.id}
-              className="card bg-white rounded-2xl border border-orange-200 hover:border-orange-500 shadow-sm hover:shadow-md transition-all"
+              className="bg-white rounded-xl border border-orange-200 hover:border-orange-500 shadow-sm hover:shadow-md transition-all"
             >
               {p.imageUrl && (
-                <figure className="h-44 sm:h-52 overflow-hidden rounded-t-2xl">
+                <figure className="h-32 sm:h-40 md:h-44 overflow-hidden rounded-t-xl">
                   <div className="relative w-full h-full">
                     <Image
                       src={p.imageUrl}
                       alt={p.name}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 320px"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
                       loading="lazy"
                     />
                   </div>
                 </figure>
               )}
 
-              <div className="card-body p-4 sm:p-5">
-                <h3 className="card-title text-slate-900 text-base sm:text-lg">
+              <div className="p-3 sm:p-4">
+                <h3 className="text-slate-900 text-sm sm:text-base font-semibold line-clamp-2">
                   {p.name || "สินค้า"}
                 </h3>
                 {p.description && (
-                  <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                  <p className="text-[11px] sm:text-xs text-slate-600 mt-1 line-clamp-3">
                     {p.description}
                   </p>
                 )}
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

@@ -1,3 +1,4 @@
+// app/components/user/Hero.tsx
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -36,35 +37,38 @@ export default function Hero({ imageUrl }: HeroProps) {
   }, [goNext, total]);
 
   return (
-    <section className="w-full bg-[var(--color-bg)] pt-6 sm:pt-10">
-      <div className="w-full relative overflow-hidden">
+    <section className="w-full bg-[var(--color-bg)] pt-[2px] sm:pt-[2px]">
+      <div className="relative w-full overflow-hidden">
+        {/* แถบสไลด์เต็มจอ */}
         <div
           className="flex transition-transform duration-700 ease-out"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {imageUrls.map((src, i) => (
             <div key={src + i} className="w-full flex-shrink-0">
-              <Image
-                src={src}
-                alt={`ShodaiEV banner ${i + 1}`}
-                width={1920}
-                height={700}
-                priority={i === 0}
-                className="w-full h-auto object-contain"
-                sizes="100vw"
-              />
+              <div className="relative w-full h-[250px] sm:h-[260px] md:h-[340px] lg:h-[850px]">
+                <Image
+                  src={src}
+                  alt={`ShodaiEV banner ${i + 1}`}
+                  fill
+                  priority={i === 0}
+                  className="object-cover" // เต็มจอ ตัดส่วนเกินเล็กน้อย
+                  sizes="100vw"
+                />
+              </div>
             </div>
           ))}
         </div>
 
         {total > 1 && (
           <>
+            {/* ปุ่มซ้าย/ขวา */}
             <button
               type="button"
               onClick={goPrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10
-                         w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center
-                         rounded-full bg-black/40 hover:bg-black/60 text-white text-xl"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-10
+                         w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center
+                         rounded-full bg-black/40 hover:bg-black/60 text-white text-lg"
             >
               ‹
             </button>
@@ -72,14 +76,15 @@ export default function Hero({ imageUrl }: HeroProps) {
             <button
               type="button"
               onClick={goNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-10
-                         w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center
-                         rounded-full bg-black/40 hover:bg-black/60 text-white text-xl"
+              className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-10
+                         w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center
+                         rounded-full bg-black/40 hover:bg-black/60 text-white text-lg"
             >
               ›
             </button>
 
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+            {/* จุดบอกสไลด์ */}
+            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
               {imageUrls.map((_, i) => (
                 <button
                   key={i}
