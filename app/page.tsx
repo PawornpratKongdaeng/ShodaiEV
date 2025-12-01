@@ -3,6 +3,7 @@ import Header from "./components/user/Header";
 import Hero from "./components/user/Hero";
 import ContactSection from "./components/user/Contact";
 import ProductsSection from "./components/user/Products";
+
 import ServiceGallery from "./components/user/ServiceGallery";
 import { loadSiteData, type SiteConfig } from "@/lib/server/siteData";
 import Link from "next/link";
@@ -12,7 +13,6 @@ import Script from "next/script";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://shodaiev.com";
 
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "ShodaiEV | ซ่อมรถไฟฟ้า 2 ล้อ 3 ล้อ บริการถึงบ้าน",
@@ -22,6 +22,8 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
 };
+
+export const revalidate = 600;
 
 export default async function HomePage() {
   const data: SiteConfig = await loadSiteData();
@@ -86,7 +88,7 @@ export default async function HomePage() {
         }}
       />
 
-      <Header phone={data.phone ?? ""} line={data.line ?? ""} />
+      <Header  phone={data.phone ?? ""} line={data.line ?? ""} />
 
       <h1 className="sr-only">
         {data.seoTitleHome ||

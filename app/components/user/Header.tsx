@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
+
 type HeaderProps = {
   phone?: string;
   line?: string;

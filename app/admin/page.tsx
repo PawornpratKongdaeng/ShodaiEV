@@ -1358,246 +1358,249 @@ const TopicsEditorView = ({ config, setConfig }: TopicsEditorProps) => {
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 space-y-4">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h3 className="text-sm md:text-base font-semibold text-slate-900">
-            หัวข้อบริการ (Service Topics)
-          </h3>
-          <p className="text-[11px] text-slate-500">
-            ใช้แสดงในหน้า /page/service และลิงก์ไป /page/product/[slug]
-          </p>
+  <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div>
+      <h3 className="text-sm md:text-base font-semibold text-slate-900">
+        หัวข้อบริการ (Service Topics)
+      </h3>
+      <p className="text-[11px] text-slate-500">
+        ใช้แสดงในหน้า /page/service และลิงก์ไป /page/product/[slug]
+      </p>
+    </div>
+
+    <button
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-600 text-white text-xs md:text-sm font-medium shadow-sm hover:shadow-md hover:bg-sky-700 transition-all"
+      onClick={openCreate}
+    >
+      <span className="text-base leading-none">＋</span>
+      <span>เพิ่มหัวข้อ</span>
+    </button>
+  </div>
+
+  {topics.length === 0 && (
+    <p className="text-sm text-slate-500">
+      ยังไม่มีหัวข้อ กด "เพิ่มหัวข้อ" เพื่อเริ่มต้น
+    </p>
+  )}
+
+  <div className="space-y-3">
+    {topics.map((t) => (
+      <div
+        key={t.id}
+        className="p-4 border border-slate-200 rounded-2xl bg-gradient-to-r from-white to-slate-50/70 shadow-sm hover:shadow-md transition-all flex flex-col gap-3"
+      >
+        <div className="flex gap-3">
+          {t.thumbnailUrl && (
+            <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border border-slate-200 bg-white">
+              <img
+                src={t.thumbnailUrl}
+                alt={t.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          <div className="flex-1">
+            <p className="font-semibold text-slate-900">
+              {t.title || "ยังไม่ตั้งหัวข้อ"}
+            </p>
+            <p className="text-xs text-slate-600 line-clamp-2 mt-1">
+              {t.summary || t.detail || "ยังไม่มีคำอธิบาย"}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-1">
+              URL:{" "}
+              <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                /page/product/{t.id}
+              </code>
+            </p>
+          </div>
         </div>
 
+        <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 bg-slate-50/60 -mx-4 px-4 rounded-b-2xl">
+          <button
+            className="inline-flex items-center justify-center px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-sm transition-all"
+            onClick={() => openEdit(t)}
+          >
+            แก้ไข
+          </button>
+          <button
+            className="inline-flex items-center justify-center px-3 py-1.5 rounded-full border border-red-200 bg-red-50 text-xs font-medium text-red-700 hover:bg-red-100 shadow-sm transition-all"
+            onClick={() => remove(t.id)}
+          >
+            ลบ
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+
+ {dialogOpen && editItem && (
+  <dialog className="modal modal-open">
+    <div className="modal-box max-w-lg bg-white rounded-2xl p-0 shadow-2xl max-h-[90vh] flex flex-col">
+      {/* HEADER */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50/80 shrink-0">
+        <div>
+          <p className="text-xs font-semibold text-sky-600 uppercase tracking-wide">
+            Service Topic
+          </p>
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+            {isEditing ? "แก้ไขหัวข้อบริการ" : "เพิ่มหัวข้อบริการใหม่"}
+          </h3>
+        </div>
         <button
-          className="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-xs md:text-sm font-medium hover:bg-sky-700"
-          onClick={openCreate}
+          type="button"
+          onClick={closeDialog}
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
         >
-          + เพิ่มหัวข้อ
+          ✕
         </button>
       </div>
 
-      {topics.length === 0 && (
-        <p className="text-sm text-slate-500">
-          ยังไม่มีหัวข้อ กด "เพิ่มหัวข้อ" เพื่อเริ่มต้น
-        </p>
-      )}
-
-      <div className="space-y-3">
-        {topics.map((t) => (
-          <div
-            key={t.id}
-            className="p-4 border border-slate-200 rounded-xl flex gap-3 bg-slate-50"
-          >
-            {t.thumbnailUrl && (
-              <div className="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-white">
+      {/* BODY – ทำให้เลื่อนในแนวตั้งได้ */}
+      <div className="px-5 py-4 sm:py-5 space-y-4 overflow-y-auto flex-1">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-slate-700">
+            รูป Thumbnail ของหัวข้อ
+          </p>
+          <div className="flex gap-3 items-center">
+            <div className="w-20 h-20 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
+              {editItem.thumbnailUrl ? (
                 <img
-                  src={t.thumbnailUrl}
-                  alt={t.title}
+                  src={editItem.thumbnailUrl}
+                  alt="thumbnail-preview"
                   className="w-full h-full object-cover"
                 />
-              </div>
-            )}
-
-            <div className="flex-1 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              <div>
-                <p className="font-semibold text-slate-900">
-                  {t.title || "ยังไม่ตั้งหัวข้อ"}
-                </p>
-                <p className="text-xs text-slate-600 line-clamp-2">
-                  {t.summary || t.detail || "ยังไม่มีคำอธิบาย"}
-                </p>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  URL:{" "}
-                  <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                    /page/product/{t.id}
-                  </code>
-                </p>
-              </div>
-
-              <div className="flex gap-2 justify-end">
+              ) : (
+                <span className="text-slate-400 text-xs">ไม่มีรูป</span>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium cursor-pointer inline-flex items-center gap-2">
+                <span>เลือกรูป</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleThumbnailUpload}
+                  disabled={thumbUploading}
+                />
+              </label>
+              {editItem.thumbnailUrl && (
                 <button
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-700 hover:bg-slate-50"
-                  onClick={() => openEdit(t)}
+                  type="button"
+                  onClick={handleRemoveThumbnail}
+                  className="text-[11px] text-red-600 hover:underline text-left"
                 >
-                  แก้ไข
+                  ลบรูป Thumbnail นี้
                 </button>
-                <button
-                  className="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-xs text-red-700 hover:bg-red-100"
-                  onClick={() => remove(t.id)}
-                >
-                  ลบ
-                </button>
-              </div>
+              )}
+              {thumbUploading && (
+                <p className="text-[11px] text-sky-600">
+                  ⏳ กำลังอัปโหลดรูป...
+                </p>
+              )}
             </div>
           </div>
-        ))}
+          <p className="text-[11px] text-slate-500">
+            ใช้แสดงใน Card หน้า /page/service และในหน้าอื่น ๆ ที่ต้องโชว์หัวข้อ
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700">
+            หัวข้อ (Title)
+          </label>
+          <input
+            className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
+            value={editItem.title}
+            onChange={(e) =>
+              setEditItem({ ...editItem, title: e.target.value })
+            }
+            placeholder="เช่น งานซ่อมทั่วไป"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700">
+            รหัส URL (Slug)
+          </label>
+          <input
+            className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none font-mono"
+            value={editItem.id}
+            onChange={(e) =>
+              setEditItem({ ...editItem, id: e.target.value })
+            }
+            placeholder="เช่น 2ล้อ หรือ ซ่อม-2-ล้อ (ปล่อยว่างให้ระบบสร้างจากหัวข้อ)"
+          />
+          <p className="text-[11px] text-slate-500">
+            ใช้เป็นส่วนท้ายของลิงก์ เช่น{" "}
+            <span className="font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+              /page/product/{editItem.id || "2ล้อ"}
+            </span>
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700">
+            ข้อความสั้น (Summary)
+          </label>
+          <input
+            className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
+            value={editItem.summary || ""}
+            onChange={(e) =>
+              setEditItem({ ...editItem, summary: e.target.value })
+            }
+            placeholder="ข้อความสั้น ๆ หน้า list"
+          />
+        </div>
+
+        <div className="space-y-1.5 pb-1">
+          <label className="text-xs font-semibold text-slate-700">
+            รายละเอียด (Detail)
+          </label>
+          <textarea
+            className="textarea textarea-bordered w-full bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none min-h-[120px]"
+            rows={4}
+            value={editItem.detail || ""}
+            onChange={(e) =>
+              setEditItem({ ...editItem, detail: e.target.value })
+            }
+            placeholder="รายละเอียดใช้ในหน้า detail หรือ backup text"
+          />
+        </div>
       </div>
 
-      {dialogOpen && editItem && (
-        <dialog className="modal modal-open">
-          <div className="modal-box max-w-lg bg-white rounded-2xl p-0 overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50/80">
-              <div>
-                <p className="text-xs font-semibold text-sky-600 uppercase tracking-wide">
-                  Service Topic
-                </p>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  {isEditing ? "แก้ไขหัวข้อบริการ" : "เพิ่มหัวข้อบริการใหม่"}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={closeDialog}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-700"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="px-5 py-4 sm:py-5 space-y-4">
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-slate-700">
-                  รูป Thumbnail ของหัวข้อ
-                </p>
-                <div className="flex gap-3 items-center">
-                  <div className="w-20 h-20 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
-                    {editItem.thumbnailUrl ? (
-                      <img
-                        src={editItem.thumbnailUrl}
-                        alt="thumbnail-preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-slate-400 text-xs">
-                        ไม่มีรูป
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium cursor-pointer inline-flex items-center gap-2">
-                      <span>เลือกรูป</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleThumbnailUpload}
-                        disabled={thumbUploading}
-                      />
-                    </label>
-                    {editItem.thumbnailUrl && (
-                      <button
-                        type="button"
-                        onClick={handleRemoveThumbnail}
-                        className="text-[11px] text-red-600 hover:underline text-left"
-                      >
-                        ลบรูป Thumbnail นี้
-                      </button>
-                    )}
-                    {thumbUploading && (
-                      <p className="text-[11px] text-sky-600">
-                        ⏳ กำลังอัปโหลดรูป...
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  ใช้แสดงใน Card หน้า /page/service และในหน้าอื่น ๆ ที่ต้องโชว์หัวข้อ
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700">
-                  หัวข้อ (Title)
-                </label>
-                <input
-                  className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
-                  value={editItem.title}
-                  onChange={(e) =>
-                    setEditItem({ ...editItem, title: e.target.value })
-                  }
-                  placeholder="เช่น งานซ่อมทั่วไป"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700">
-                  รหัส URL (Slug)
-                </label>
-                <input
-                  className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none font-mono"
-                  value={editItem.id}
-                  onChange={(e) =>
-                    setEditItem({ ...editItem, id: e.target.value })
-                  }
-                  placeholder="เช่น 2ล้อ หรือ ซ่อม-2-ล้อ (ปล่อยว่างให้ระบบสร้างจากหัวข้อ)"
-                />
-                <p className="text-[11px] text-slate-500">
-                  ใช้เป็นส่วนท้ายของลิงก์ เช่น{" "}
-                  <span className="font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
-                    /page/product/{editItem.id || "2ล้อ"}
-                  </span>
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700">
-                  ข้อความสั้น (Summary)
-                </label>
-                <input
-                  className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
-                  value={editItem.summary || ""}
-                  onChange={(e) =>
-                    setEditItem({ ...editItem, summary: e.target.value })
-                  }
-                  placeholder="ข้อความสั้น ๆ หน้า list"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700">
-                  รายละเอียด (Detail)
-                </label>
-                <textarea
-                  className="textarea textarea-bordered w-full bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none min-h-[120px]"
-                  rows={4}
-                  value={editItem.detail || ""}
-                  onChange={(e) =>
-                    setEditItem({ ...editItem, detail: e.target.value })
-                  }
-                  placeholder="รายละเอียดใช้ในหน้า detail หรือ backup text"
-                />
-              </div>
-            </div>
-
-            <div className="px-5 py-3 sm:py-4 border-t border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row gap-2 sm:justify-end">
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm sm:btn-md text-slate-600 hover:bg-slate-100"
-                onClick={closeDialog}
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm sm:btn-md bg-sky-600 hover:bg-sky-700 border-sky-600"
-                onClick={handleConfirm}
-                disabled={thumbUploading}
-              >
-                บันทึก
-              </button>
-            </div>
-          </div>
-
-          <form
-            method="dialog"
-            className="modal-backdrop"
-            onClick={closeDialog}
-          >
-            <button>close</button>
-          </form>
-        </dialog>
-      )}
+      {/* FOOTER */}
+      <div className="px-5 py-3 sm:py-4 border-t border-slate-200 bg-slate-50/80 flex flex-col sm:flex-row gap-2 sm:justify-end shrink-0">
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm sm:btn-md text-slate-600 hover:bg-slate-100"
+          onClick={closeDialog}
+        >
+          ยกเลิก
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary btn-sm sm:btn-md bg-sky-600 hover:bg-sky-700 border-sky-600"
+          onClick={handleConfirm}
+          disabled={thumbUploading}
+        >
+          บันทึก
+        </button>
+      </div>
     </div>
+
+    <form
+      method="dialog"
+      className="modal-backdrop"
+      onClick={closeDialog}
+    >
+      <button>close</button>
+    </form>
+  </dialog>
+)}
+
+</div>
   );
 };
 
