@@ -2237,7 +2237,7 @@ function AdminPageInner() {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await fetch("/api/admin/config");
+        const res = await fetch("/api/admin/config.ts");
         if (!res.ok) throw new Error("Failed to load config");
         const json = (await res.json()) as SiteConfig;
         setConfig({
@@ -2257,7 +2257,7 @@ function AdminPageInner() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/config", {
+      const res = await fetch("/api/admin/config.ts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
