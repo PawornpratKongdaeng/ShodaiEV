@@ -10,3 +10,6 @@ export const r2Client = new S3Client({
 });
 
 export const BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET!;
+
+// 👇 เพิ่มอันนี้เข้าไป (ของสำคัญ)
+export const R2_PUBLIC_URL = process.env.CLOUDFLARE_PUBLIC_BASE_URL!;

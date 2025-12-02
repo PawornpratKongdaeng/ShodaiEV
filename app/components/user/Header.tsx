@@ -163,13 +163,6 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
                 </div>
 
                 <div className="flex items-center justify-between gap-3">
-                  <a
-                    href="#services"
-                    className="flex-1 text-center text-sm font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] py-2 rounded-full border border-[var(--color-primary-soft)] bg-[var(--color-bg)]"
-                    onClick={() => setOpen(false)}
-                  >
-                    Services
-                  </a>
                   <motion.a
                     href="#contact"
                     whileHover={{ scale: 1.02 }}

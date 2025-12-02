@@ -1,8 +1,6 @@
-// app/components/user/Hero.tsx
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import Image from "next/image";
 
 type HeroProps = {
   imageUrl: string | string[];
@@ -37,37 +35,29 @@ export default function Hero({ imageUrl }: HeroProps) {
   }, [goNext, total]);
 
   return (
-    <section className="w-full h-full object-cover bg-[var(--color-bg)] pt-0 sm:pt-0">
+    <section className="w-full h-auto object-cover bg-[var(--color-bg)] pt-0 sm:pt-0">
       <div className="relative w-full overflow-hidden">
-        {/* แถบสไลด์เต็มจอ */}
         <div
           className="flex transition-transform duration-700 ease-out"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {imageUrls.map((src, i) => (
-  <div key={src + i} className="w-full flex-shrink-0">
-    <div className="relative w-full h-[260px] sm:h-[320px] md:h-[380px] lg:h-[420px] xl:h-[480px]">
-  <Image
-  src={src}
-  alt="ShodaiEV Banner"
-  width={1600}
-  height={900}
-  quality={75}
-  className="w-full h-auto object-cover"
-  sizes="100vw"
-  unoptimized             
-/>
-
-</div>
-
-  </div>
-))}
-
+            <div key={src + i} className="w-full flex-shrink-0">
+              <div className="relative w-full h-[260px] sm:h-[320px] md:h-[380px] lg:h-[460px] xl:h-[520px]">
+                <img
+                  src={src}
+                  alt="ShodaiEV Banner"
+                  className="w-full h-full object-cover"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </div>
+            </div>
+          ))}
         </div>
 
         {total > 1 && (
           <>
-            {/* ปุ่มซ้าย/ขวา */}
             <button
               type="button"
               onClick={goPrev}
@@ -88,7 +78,6 @@ export default function Hero({ imageUrl }: HeroProps) {
               ›
             </button>
 
-            {/* จุดบอกสไลด์ */}
             <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
               {imageUrls.map((_, i) => (
                 <button
