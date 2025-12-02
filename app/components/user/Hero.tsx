@@ -52,11 +52,10 @@ export default function Hero({ imageUrl }: HeroProps) {
   alt="ShodaiEV Banner"
   width={1600}
   height={900}
-  quality={70}
-  priority={i === 0}       // เฉพาะรูปแรกเพื่อ LCP
+  quality={75}
   className="w-full h-auto object-cover"
   sizes="100vw"
-  unoptimized              // ✅ ใช้ R2 ตรง ๆ ไม่ผ่าน /_next/image
+  unoptimized             
 />
 
 </div>
