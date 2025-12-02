@@ -107,6 +107,7 @@ export default async function ServicePage() {
                         alt={t.title}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">

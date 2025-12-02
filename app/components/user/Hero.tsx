@@ -37,7 +37,7 @@ export default function Hero({ imageUrl }: HeroProps) {
   }, [goNext, total]);
 
   return (
-    <section className="w-full h-auto object-cover bg-[var(--color-bg)] pt-0 sm:pt-0">
+    <section className="w-full h-full object-cover bg-[var(--color-bg)] pt-0 sm:pt-0">
       <div className="relative w-full overflow-hidden">
         {/* แถบสไลด์เต็มจอ */}
         <div
@@ -45,21 +45,22 @@ export default function Hero({ imageUrl }: HeroProps) {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {imageUrls.map((src, i) => (
-            <div key={src + i} className="w-full flex-shrink-0">
-              <div className="relative w-full h-[300px] sm:h-[300px] md:h-[300px] lg:h-[1200px] full">
-                <Image
-                  src={src}
-                  alt="ShodaiEV Banner"
-                  width={1600}
-                  height={900}
-                  quality={70}
-                  priority
-                  loading="eager"
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            </div>
-          ))}
+  <div key={src + i} className="w-full flex-shrink-0">
+    <div className="relative w-full h-[260px] sm:h-[320px] md:h-[380px] lg:h-[420px] xl:h-[480px]">
+  <Image
+    src={src}
+    alt="ShodaiEV Banner"
+    fill
+    quality={75}
+    sizes="100vw"
+    loading="lazy"
+    className="object-cover"
+  />
+</div>
+
+  </div>
+))}
+
         </div>
 
         {total > 1 && (

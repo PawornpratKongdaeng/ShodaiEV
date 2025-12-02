@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 
 type HeaderProps = {
@@ -56,11 +57,15 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
               <div className="flex items-center gap-4">
                 {hasLine && (
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--color-primary-soft)] bg-[var(--color-surface)]">
-                    <img
-                      src="/LINE_Brand_icon.png"
-                      alt="LINE"
-                      className="h-6 w-6"
-                    />
+                    <Image
+  src="/LINE_Brand_icon.png"
+  alt="LINE"
+  width={24}
+  height={24}
+  loading="lazy"
+  className="w-6 h-6"
+/>
+
                     <span className="text-sm sm:text-base font-semibold text-[var(--color-primary)] break-all">
                       {line}
                     </span>
@@ -132,11 +137,15 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
                 <div className="flex flex-col gap-2">
                   {hasLine && (
                     <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--color-primary-soft)] bg-[var(--color-surface)]">
-                      <img
-                        src="/LINE_Brand_icon.png"
-                        alt="LINE"
-                        className="h-5 w-5"
-                      />
+                      <Image
+  src="/LINE_Brand_icon.png"
+  alt="LINE"
+  width={24}
+  height={24}
+  loading="lazy"
+  className="w-6 h-6"
+/>
+
                       <span className="text-sm font-semibold text-[var(--color-primary)] break-all">
                         {line}
                       </span>

@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 type ContactProps = {
   phone?: string;
   line?: string;
@@ -70,13 +72,14 @@ export default function Contact({
               className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
             >
               <div className="flex items-center">
-                <img
-                  src="/LINE_Brand_icon.png"
-                  alt="LINE"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
-                />
+                <Image
+  src="/LINE_Brand_icon.png"
+  alt="LINE"
+  width={24}
+  height={24}
+  className="w-6 h-6"
+  loading="lazy"
+/>
                 <span className="ml-3 sm:ml-4 text-sm sm:text-base text-[var(--color-text)] break-all">
                   {line}
                 </span>
@@ -92,13 +95,14 @@ export default function Contact({
               className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
             >
               <div className="flex items-center">
-                <img
-                  src="/facebook.png"
-                  alt="Facebook"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
-                />
+                <Image
+  src="/facebook.png"
+  alt="Facebook"
+  width={24}
+  height={24}
+  className="w-6 h-6"
+  loading="lazy"
+/>
                 <span className="ml-3 sm:ml-4 text-sm sm:text-base text-[var(--color-text)] break-all">
                   {facebook}
                 </span>

@@ -2,14 +2,13 @@
 import Header from "./components/user/Header";
 import Hero from "./components/user/Hero";
 import ContactSection from "./components/user/Contact";
-import ProductsSection from "./components/user/Products";
 import ThemeVars from "./components/user/ThemeVars";
 
-import ServiceGallery from "./components/user/ServiceGallery";
 import { loadSiteData, type SiteConfig, defaultTheme } from "@/lib/server/siteData";
 import Link from "next/link";
 import type { Metadata } from "next";
 import Script from "next/script";
+import dynamic from "next/dynamic";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://shodaiev.com";
@@ -23,6 +22,25 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
 };
+
+
+const ProductsSection = dynamic(
+  () => import("./components/user/Products"),
+  {
+    loading: () => (
+      <div className="w-full h-40 bg-slate-100 animate-pulse rounded-xl" />
+    ),
+  }
+);
+
+const ServiceGallery = dynamic(
+  () => import("./components/user/ServiceGallery"),
+  {
+    loading: () => (
+      <div className="w-full h-40 bg-slate-100 animate-pulse rounded-xl" />
+    ),
+  }
+);
 
 export const revalidate = 600;
 
@@ -78,6 +96,7 @@ export default async function HomePage() {
 
   const products = data.products ?? [];
   const homeGallery = data.homeGallery ?? [];
+  
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900">

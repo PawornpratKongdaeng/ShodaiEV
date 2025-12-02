@@ -9,6 +9,7 @@ import type {
   ThemeColors,
 } from "@/lib/server/siteData";
 import { v4 as uuid } from "uuid";
+import Image from "next/image";
 
 type SectionId =
   | "dashboard"
@@ -47,9 +48,6 @@ const createEmptyConfig = (): SiteConfig => ({
   homeGallery: [],
   theme: undefined,
 });
-
-
-
 
 const toFileArray = (files: FileList | File[]) =>
   Array.isArray(files) ? files : Array.from(files);
@@ -133,9 +131,6 @@ const buildContactPayload = (config: SiteConfig) => ({
 const buildThemePayload = (config: SiteConfig) => ({
   theme: config.theme,
 });
-
-
-
 
 type AdminSidebarProps = {
   activeSection: SectionId;
@@ -243,11 +238,7 @@ type AdminHeaderProps = {
   onToggleSidebar: () => void;
 };
 
-const AdminHeader = ({
-  onSave,
-  saving,
-  onToggleSidebar,
-}: AdminHeaderProps) => (
+const AdminHeader = ({ onSave, saving, onToggleSidebar }: AdminHeaderProps) => (
   <header className="h-16 bg-white/90 backdrop-blur border-b border-slate-200 fixed top-0 left-0 md:left-64 right-0 z-40">
     <div className="h-full px-3 sm:px-4 md:px-8 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -464,9 +455,7 @@ const ThemeEditorView = ({ config, setConfig }: ThemeEditorProps) => {
           </div>
 
           <div className="grid grid-cols-[100px,1fr] gap-3 items-center">
-            <span className="text-xs font-semibold text-slate-700">
-              Accent
-            </span>
+            <span className="text-xs font-semibold text-slate-700">Accent</span>
             <div className="flex gap-2">
               <input
                 type="color"
@@ -524,9 +513,7 @@ const ThemeEditorView = ({ config, setConfig }: ThemeEditorProps) => {
           </div>
 
           <div className="grid grid-cols-[100px,1fr] gap-3 items-center">
-            <span className="text-xs font-semibold text-slate-700">
-              Text
-            </span>
+            <span className="text-xs font-semibold text-slate-700">Text</span>
             <div className="flex gap-2">
               <input
                 type="color"
@@ -559,7 +546,8 @@ const ThemeEditorView = ({ config, setConfig }: ThemeEditorProps) => {
               ตัวอย่างหัวข้อบริการ ซ่อมรถไฟฟ้า 2 ล้อ 3 ล้อ
             </h3>
             <p className="text-xs">
-              ตัวอย่างข้อความอธิบายบริการ เมื่อเปลี่ยนสีด้านซ้าย กล่องนี้จะปรับตามทันที
+              ตัวอย่างข้อความอธิบายบริการ เมื่อเปลี่ยนสีด้านซ้าย
+              กล่องนี้จะปรับตามทันที
             </p>
             <div className="flex flex-wrap gap-2">
               <button className="px-4 py-2 rounded-full text-xs font-semibold bg-[var(--color-primary)] text-white">
@@ -586,11 +574,10 @@ const HeroEditorView = ({ config, setConfig }: HeroEditorProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const heroImages: string[] = Array.isArray(config.heroImageUrl)
-  ? config.heroImageUrl
-  : config.heroImageUrl
-  ? [config.heroImageUrl]
-  : [];
-
+    ? config.heroImageUrl
+    : config.heroImageUrl
+    ? [config.heroImageUrl]
+    : [];
 
   useEffect(() => {
     if (currentIndex >= heroImages.length) {
@@ -644,16 +631,12 @@ const HeroEditorView = ({ config, setConfig }: HeroEditorProps) => {
 
   const handlePrev = () => {
     if (heroImages.length <= 1) return;
-    setCurrentIndex((prev) =>
-      prev === 0 ? heroImages.length - 1 : prev - 1
-    );
+    setCurrentIndex((prev) => (prev === 0 ? heroImages.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
     if (heroImages.length <= 1) return;
-    setCurrentIndex((prev) =>
-      prev === heroImages.length - 1 ? 0 : prev + 1
-    );
+    setCurrentIndex((prev) => (prev === heroImages.length - 1 ? 0 : prev + 1));
   };
 
   const currentImage = heroImages[currentIndex];
@@ -667,7 +650,8 @@ const HeroEditorView = ({ config, setConfig }: HeroEditorProps) => {
               Hero Banner
             </h3>
             <p className="text-[11px] md:text-xs text-slate-500 mt-1">
-              รูปเหล่านี้จะแสดงบนส่วนบนสุดของหน้าเว็บแบบสไลด์ สามารถอัปได้หลายรูป
+              รูปเหล่านี้จะแสดงบนส่วนบนสุดของหน้าเว็บแบบสไลด์
+              สามารถอัปได้หลายรูป
             </p>
           </div>
 
@@ -717,11 +701,14 @@ const HeroEditorView = ({ config, setConfig }: HeroEditorProps) => {
                         : "border-slate-200"
                     }`}
                   >
-                    <img
-                      src={url}
-                      alt={`hero-${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                    <Image
+  src={url}
+  alt={`hero-${idx + 1}`}
+  fill
+  className="object-cover"
+  priority={idx === 0} // โหลดก่อนเฉพาะภาพแรก
+  unoptimized           // ⬅️ บอก Next ให้ใช้ URL ตรงจาก R2 เลย
+/>
 
                     <span className="absolute bottom-0 left-0 right-0 text-[10px] bg-black/50 text-white text-center">
                       {idx + 1}
@@ -780,9 +767,12 @@ const HeroEditorView = ({ config, setConfig }: HeroEditorProps) => {
           <div className="relative bg-slate-100 border border-sky-200 rounded-2xl overflow-hidden">
             {heroImages.length > 0 ? (
               <div className="relative w-full aspect-[16/9] bg-black/5">
-                <img
+                <Image
                   src={currentImage}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  alt="hero-current"
+                  fill
+                  loading="lazy"
+                  className="object-cover"
                 />
 
                 {heroImages.length > 1 && (
@@ -946,9 +936,12 @@ const HomeGalleryEditorView = ({
                 className="group border border-slate-200 rounded-xl overflow-hidden bg-white flex flex-col"
               >
                 <div className="relative">
-                  <img
+                  <Image
                     src={url}
                     alt={`home-gallery-${index + 1}`}
+                    width={400}
+                    height={200}
+                    loading="lazy"
                     className="w-full h-24 sm:h-28 object-cover group-hover:scale-105 transition-transform"
                   />
                   <button
@@ -1400,258 +1393,260 @@ const TopicsEditorView = ({ config, setConfig }: TopicsEditorProps) => {
   };
 
   const handleRemoveThumbnail = () => {
-    setEditItem((prev) =>
-      prev ? { ...prev, thumbnailUrl: "" } : prev
-    );
+    setEditItem((prev) => (prev ? { ...prev, thumbnailUrl: "" } : prev));
   };
 
   const isEditing = !!originalId;
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 space-y-4">
-  <div className="flex items-center justify-between gap-4 flex-wrap">
-    <div>
-      <h3 className="text-sm md:text-base font-semibold text-slate-900">
-        หัวข้อบริการ (Service Topics)
-      </h3>
-      <p className="text-[11px] text-slate-500">
-        ใช้แสดงในหน้า /page/service และลิงก์ไป /page/product/[slug]
-      </p>
-    </div>
-
-    <button
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-600 text-white text-xs md:text-sm font-medium shadow-sm hover:shadow-md hover:bg-sky-700 transition-all"
-      onClick={openCreate}
-    >
-      <span className="text-base leading-none">＋</span>
-      <span>เพิ่มหัวข้อ</span>
-    </button>
-  </div>
-
-  {topics.length === 0 && (
-    <p className="text-sm text-slate-500">
-      ยังไม่มีหัวข้อ กด "เพิ่มหัวข้อ" เพื่อเริ่มต้น
-    </p>
-  )}
-
-  <div className="space-y-3">
-    {topics.map((t) => (
-      <div
-        key={t.id}
-        className="p-4 border border-slate-200 rounded-2xl bg-gradient-to-r from-white to-slate-50/70 shadow-sm hover:shadow-md transition-all flex flex-col gap-3"
-      >
-        <div className="flex gap-3">
-          {t.thumbnailUrl && (
-            <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border border-slate-200 bg-white">
-              <img
-                src={t.thumbnailUrl}
-                alt={t.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-
-          <div className="flex-1">
-            <p className="font-semibold text-slate-900">
-              {t.title || "ยังไม่ตั้งหัวข้อ"}
-            </p>
-            <p className="text-xs text-slate-600 line-clamp-2 mt-1">
-              {t.summary || t.detail || "ยังไม่มีคำอธิบาย"}
-            </p>
-            <p className="text-[11px] text-slate-400 mt-1">
-              URL:{" "}
-              <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                /page/product/{t.id}
-              </code>
-            </p>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 bg-slate-50/60 -mx-4 px-4 rounded-b-2xl">
-          <button
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-sm transition-all"
-            onClick={() => openEdit(t)}
-          >
-            แก้ไข
-          </button>
-          <button
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded-full border border-red-200 bg-red-50 text-xs font-medium text-red-700 hover:bg-red-100 shadow-sm transition-all"
-            onClick={() => remove(t.id)}
-          >
-            ลบ
-          </button>
-        </div>
-      </div>
-    ))}
-  </div>
-
- {dialogOpen && editItem && (
-  <dialog className="modal modal-open">
-    <div className="modal-box max-w-lg bg-white rounded-2xl p-0 shadow-2xl max-h-[90vh] flex flex-col">
-      {/* HEADER */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50/80 shrink-0">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs font-semibold text-sky-600 uppercase tracking-wide">
-            Service Topic
-          </p>
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-            {isEditing ? "แก้ไขหัวข้อบริการ" : "เพิ่มหัวข้อบริการใหม่"}
+          <h3 className="text-sm md:text-base font-semibold text-slate-900">
+            หัวข้อบริการ (Service Topics)
           </h3>
+          <p className="text-[11px] text-slate-500">
+            ใช้แสดงในหน้า /page/service และลิงก์ไป /page/product/[slug]
+          </p>
         </div>
+
         <button
-          type="button"
-          onClick={closeDialog}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-600 text-white text-xs md:text-sm font-medium shadow-sm hover:shadow-md hover:bg-sky-700 transition-all"
+          onClick={openCreate}
         >
-          ✕
+          <span className="text-base leading-none">＋</span>
+          <span>เพิ่มหัวข้อ</span>
         </button>
       </div>
 
-      {/* BODY – ทำให้เลื่อนในแนวตั้งได้ */}
-      <div className="px-5 py-4 sm:py-5 space-y-4 overflow-y-auto flex-1">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-slate-700">
-            รูป Thumbnail ของหัวข้อ
-          </p>
-          <div className="flex gap-3 items-center">
-            <div className="w-20 h-20 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
-              {editItem.thumbnailUrl ? (
-                <img
-                  src={editItem.thumbnailUrl}
-                  alt="thumbnail-preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-slate-400 text-xs">ไม่มีรูป</span>
+      {topics.length === 0 && (
+        <p className="text-sm text-slate-500">
+          ยังไม่มีหัวข้อ กด "เพิ่มหัวข้อ" เพื่อเริ่มต้น
+        </p>
+      )}
+
+      <div className="space-y-3">
+        {topics.map((t) => (
+          <div
+            key={t.id}
+            className="p-4 border border-slate-200 rounded-2xl bg-gradient-to-r from-white to-slate-50/70 shadow-sm hover:shadow-md transition-all flex flex-col gap-3"
+          >
+            <div className="flex gap-3">
+              {t.thumbnailUrl && (
+                <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border border-slate-200 bg-white">
+                  <Image
+                    src={t.thumbnailUrl}
+                    alt={t.title}
+                    fill
+                    className="object-cover"
+                    loading="lazy"
+                  />
+                </div>
               )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium cursor-pointer inline-flex items-center gap-2">
-                <span>เลือกรูป</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleThumbnailUpload}
-                  disabled={thumbUploading}
-                />
-              </label>
-              {editItem.thumbnailUrl && (
-                <button
-                  type="button"
-                  onClick={handleRemoveThumbnail}
-                  className="text-[11px] text-red-600 hover:underline text-left"
-                >
-                  ลบรูป Thumbnail นี้
-                </button>
-              )}
-              {thumbUploading && (
-                <p className="text-[11px] text-sky-600">
-                  ⏳ กำลังอัปโหลดรูป...
+
+              <div className="flex-1">
+                <p className="font-semibold text-slate-900">
+                  {t.title || "ยังไม่ตั้งหัวข้อ"}
                 </p>
-              )}
+                <p className="text-xs text-slate-600 line-clamp-2 mt-1">
+                  {t.summary || t.detail || "ยังไม่มีคำอธิบาย"}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  URL:{" "}
+                  <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                    /page/product/{t.id}
+                  </code>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 bg-slate-50/60 -mx-4 px-4 rounded-b-2xl">
+              <button
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-sm transition-all"
+                onClick={() => openEdit(t)}
+              >
+                แก้ไข
+              </button>
+              <button
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-full border border-red-200 bg-red-50 text-xs font-medium text-red-700 hover:bg-red-100 shadow-sm transition-all"
+                onClick={() => remove(t.id)}
+              >
+                ลบ
+              </button>
             </div>
           </div>
-          <p className="text-[11px] text-slate-500">
-            ใช้แสดงใน Card หน้า /page/service และในหน้าอื่น ๆ ที่ต้องโชว์หัวข้อ
-          </p>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700">
-            หัวข้อ (Title)
-          </label>
-          <input
-            className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
-            value={editItem.title}
-            onChange={(e) =>
-              setEditItem({ ...editItem, title: e.target.value })
-            }
-            placeholder="เช่น งานซ่อมทั่วไป"
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700">
-            รหัส URL (Slug)
-          </label>
-          <input
-            className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none font-mono"
-            value={editItem.id}
-            onChange={(e) =>
-              setEditItem({ ...editItem, id: e.target.value })
-            }
-            placeholder="เช่น 2ล้อ หรือ ซ่อม-2-ล้อ (ปล่อยว่างให้ระบบสร้างจากหัวข้อ)"
-          />
-          <p className="text-[11px] text-slate-500">
-            ใช้เป็นส่วนท้ายของลิงก์ เช่น{" "}
-            <span className="font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
-              /page/product/{editItem.id || "2ล้อ"}
-            </span>
-          </p>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700">
-            ข้อความสั้น (Summary)
-          </label>
-          <input
-            className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
-            value={editItem.summary || ""}
-            onChange={(e) =>
-              setEditItem({ ...editItem, summary: e.target.value })
-            }
-            placeholder="ข้อความสั้น ๆ หน้า list"
-          />
-        </div>
-
-        <div className="space-y-1.5 pb-1">
-          <label className="text-xs font-semibold text-slate-700">
-            รายละเอียด (Detail)
-          </label>
-          <textarea
-            className="textarea textarea-bordered w-full bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none min-h-[120px]"
-            rows={4}
-            value={editItem.detail || ""}
-            onChange={(e) =>
-              setEditItem({ ...editItem, detail: e.target.value })
-            }
-            placeholder="รายละเอียดใช้ในหน้า detail หรือ backup text"
-          />
-        </div>
+        ))}
       </div>
 
-      {/* FOOTER */}
-      <div className="px-5 py-3 sm:py-4 border-t border-slate-200 bg-slate-50/80 flex flex-col sm:flex-row gap-2 sm:justify-end shrink-0">
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm sm:btn-md text-slate-600 hover:bg-slate-100"
-          onClick={closeDialog}
-        >
-          ยกเลิก
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary btn-sm sm:btn-md bg-sky-600 hover:bg-sky-700 border-sky-600"
-          onClick={handleConfirm}
-          disabled={thumbUploading}
-        >
-          บันทึก
-        </button>
-      </div>
+      {dialogOpen && editItem && (
+        <dialog className="modal modal-open">
+          <div className="modal-box max-w-lg bg-white rounded-2xl p-0 shadow-2xl max-h-[90vh] flex flex-col">
+            {/* HEADER */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50/80 shrink-0">
+              <div>
+                <p className="text-xs font-semibold text-sky-600 uppercase tracking-wide">
+                  Service Topic
+                </p>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  {isEditing ? "แก้ไขหัวข้อบริการ" : "เพิ่มหัวข้อบริการใหม่"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeDialog}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* BODY – ทำให้เลื่อนในแนวตั้งได้ */}
+            <div className="px-5 py-4 sm:py-5 space-y-4 overflow-y-auto flex-1">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-slate-700">
+                  รูป Thumbnail ของหัวข้อ
+                </p>
+                <div className="flex gap-3 items-center">
+                  <div className="w-20 h-20 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
+                    {editItem.thumbnailUrl ? (
+                      <Image
+                        src={editItem.thumbnailUrl}
+                        alt="thumbnail-preview"
+                        fill
+                        loading="lazy"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span className="text-slate-400 text-xs">ไม่มีรูป</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium cursor-pointer inline-flex items-center gap-2">
+                      <span>เลือกรูป</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleThumbnailUpload}
+                        disabled={thumbUploading}
+                      />
+                    </label>
+                    {editItem.thumbnailUrl && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveThumbnail}
+                        className="text-[11px] text-red-600 hover:underline text-left"
+                      >
+                        ลบรูป Thumbnail นี้
+                      </button>
+                    )}
+                    {thumbUploading && (
+                      <p className="text-[11px] text-sky-600">
+                        ⏳ กำลังอัปโหลดรูป...
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  ใช้แสดงใน Card หน้า /page/service และในหน้าอื่น ๆ
+                  ที่ต้องโชว์หัวข้อ
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">
+                  หัวข้อ (Title)
+                </label>
+                <input
+                  className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
+                  value={editItem.title}
+                  onChange={(e) =>
+                    setEditItem({ ...editItem, title: e.target.value })
+                  }
+                  placeholder="เช่น งานซ่อมทั่วไป"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">
+                  รหัส URL (Slug)
+                </label>
+                <input
+                  className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none font-mono"
+                  value={editItem.id}
+                  onChange={(e) =>
+                    setEditItem({ ...editItem, id: e.target.value })
+                  }
+                  placeholder="เช่น 2ล้อ หรือ ซ่อม-2-ล้อ (ปล่อยว่างให้ระบบสร้างจากหัวข้อ)"
+                />
+                <p className="text-[11px] text-slate-500">
+                  ใช้เป็นส่วนท้ายของลิงก์ เช่น{" "}
+                  <span className="font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+                    /page/product/{editItem.id || "2ล้อ"}
+                  </span>
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">
+                  ข้อความสั้น (Summary)
+                </label>
+                <input
+                  className="w-full input input-bordered bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none"
+                  value={editItem.summary || ""}
+                  onChange={(e) =>
+                    setEditItem({ ...editItem, summary: e.target.value })
+                  }
+                  placeholder="ข้อความสั้น ๆ หน้า list"
+                />
+              </div>
+
+              <div className="space-y-1.5 pb-1">
+                <label className="text-xs font-semibold text-slate-700">
+                  รายละเอียด (Detail)
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full bg-white text-sm border-slate-300 focus:border-sky-400 focus:outline-none min-h-[120px]"
+                  rows={4}
+                  value={editItem.detail || ""}
+                  onChange={(e) =>
+                    setEditItem({ ...editItem, detail: e.target.value })
+                  }
+                  placeholder="รายละเอียดใช้ในหน้า detail หรือ backup text"
+                />
+              </div>
+            </div>
+
+            {/* FOOTER */}
+            <div className="px-5 py-3 sm:py-4 border-t border-slate-200 bg-slate-50/80 flex flex-col sm:flex-row gap-2 sm:justify-end shrink-0">
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm sm:btn-md text-slate-600 hover:bg-slate-100"
+                onClick={closeDialog}
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm sm:btn-md bg-sky-600 hover:bg-sky-700 border-sky-600"
+                onClick={handleConfirm}
+                disabled={thumbUploading}
+              >
+                บันทึก
+              </button>
+            </div>
+          </div>
+
+          <form
+            method="dialog"
+            className="modal-backdrop"
+            onClick={closeDialog}
+          >
+            <button>close</button>
+          </form>
+        </dialog>
+      )}
     </div>
-
-    <form
-      method="dialog"
-      className="modal-backdrop"
-      onClick={closeDialog}
-    >
-      <button>close</button>
-    </form>
-  </dialog>
-)}
-
-</div>
   );
 };
 
@@ -1700,9 +1695,7 @@ const ServiceDetailEditorView = ({
         ? (prev.serviceDetails as ServiceDetailItem[])
         : [];
 
-      const idx = prevDetails.findIndex(
-        (d) => d.topicId === selectedTopicId
-      );
+      const idx = prevDetails.findIndex((d) => d.topicId === selectedTopicId);
 
       const base: ServiceDetailItem =
         idx !== -1
@@ -1764,7 +1757,8 @@ const ServiceDetailEditorView = ({
     );
   }
 
-  const currentTopic = topics.find((t) => t.id === selectedTopicId) ?? topics[0];
+  const currentTopic =
+    topics.find((t) => t.id === selectedTopicId) ?? topics[0];
   const currentDetail: ServiceDetailItem | null = currentTopic
     ? (() => {
         const found = details.find((d) => d.topicId === currentTopic.id);
@@ -1799,9 +1793,7 @@ const ServiceDetailEditorView = ({
   const images = currentDetail.images || [];
   const sections = currentDetail.sections || [];
 
-  const handleFilesChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
@@ -1881,9 +1873,7 @@ const ServiceDetailEditorView = ({
         if (!target) return d;
 
         const nextSections = sections.map((s, i) =>
-          i === index
-            ? { ...s, images: [...(s.images || []), ...newUrls] }
-            : s
+          i === index ? { ...s, images: [...(s.images || []), ...newUrls] } : s
         );
         return { ...d, sections: nextSections };
       });
@@ -1926,7 +1916,8 @@ const ServiceDetailEditorView = ({
               จัดการรายละเอียดบริการ & รูปภาพ
             </h3>
             <p className="text-xs md:text-sm text-slate-600 mt-1">
-              เลือกหัวข้อ แล้วเพิ่มข้อความ รูปภาพ และหัวข้อย่อย เช่น ยาง, เปลี่ยนแบต
+              เลือกหัวข้อ แล้วเพิ่มข้อความ รูปภาพ และหัวข้อย่อย เช่น ยาง,
+              เปลี่ยนแบต
             </p>
           </div>
         </div>
@@ -2071,9 +2062,12 @@ const ServiceDetailEditorView = ({
                     className="group border border-slate-200 rounded-xl overflow-hidden bg-white flex flex-col"
                   >
                     <div className="relative">
-                      <img
+                      <Image
                         src={url}
                         alt={`service-detail-main-${index + 1}`}
+                        width={400}
+                        height={200}
+                        loading="lazy"
                         className="w-full h-24 sm:h-28 object-cover"
                       />
                       <button
@@ -2112,7 +2106,8 @@ const ServiceDetailEditorView = ({
                 หัวข้อย่อยภายในบริการนี้
               </p>
               <p className="text-xs text-slate-600 mt-1">
-                เช่น ยาง, เปลี่ยนแบต, ระบบไฟ แต่ละหัวข้อมีรูปและคำอธิบายของตัวเอง
+                เช่น ยาง, เปลี่ยนแบต, ระบบไฟ
+                แต่ละหัวข้อมีรูปและคำอธิบายของตัวเอง
               </p>
             </div>
             <button
@@ -2126,8 +2121,8 @@ const ServiceDetailEditorView = ({
 
           {sections.length === 0 && (
             <div className="text-sm text-slate-500 border border-dashed border-slate-300 rounded-xl py-6 px-4 bg-white">
-              ยังไม่มีหัวข้อย่อย ลองเพิ่มหัวข้อ เช่น "เปลี่ยนยาง", "เปลี่ยนแบตเตอรี่"
-              เป็นต้น
+              ยังไม่มีหัวข้อย่อย ลองเพิ่มหัวข้อ เช่น "เปลี่ยนยาง",
+              "เปลี่ยนแบตเตอรี่" เป็นต้น
             </div>
           )}
 
@@ -2160,11 +2155,7 @@ const ServiceDetailEditorView = ({
                             className="input input-bordered bg-white border-slate-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 text-sm"
                             value={sec.title}
                             onChange={(e) =>
-                              updateSectionField(
-                                index,
-                                "title",
-                                e.target.value
-                              )
+                              updateSectionField(index, "title", e.target.value)
                             }
                             placeholder="เช่น เปลี่ยนยาง, เปลี่ยนแบตเตอรี่"
                           />
@@ -2214,9 +2205,7 @@ const ServiceDetailEditorView = ({
                             multiple
                             accept="image/*"
                             className="hidden"
-                            onChange={(e) =>
-                              handleSectionFilesChange(index, e)
-                            }
+                            onChange={(e) => handleSectionFilesChange(index, e)}
                             disabled={uploading}
                           />
                         </label>
@@ -2236,17 +2225,18 @@ const ServiceDetailEditorView = ({
                               className="group border border-slate-200 rounded-xl overflow-hidden bg-white flex flex-col"
                             >
                               <div className="relative">
-                                <img
+                                <Image
                                   src={url}
                                   alt={`sub-section-${index + 1}`}
+                                  width={380}
+                                  height={180}
+                                  loading="lazy"
                                   className="w-full h-20 sm:h-24 object-cover"
                                 />
                                 <button
                                   type="button"
                                   className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 text-white text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
-                                  onClick={() =>
-                                    removeSectionImage(index, url)
-                                  }
+                                  onClick={() => removeSectionImage(index, url)}
                                 >
                                   ✕
                                 </button>
@@ -2254,9 +2244,7 @@ const ServiceDetailEditorView = ({
                               </div>
                               <button
                                 type="button"
-                                onClick={() =>
-                                  removeSectionImage(index, url)
-                                }
+                                onClick={() => removeSectionImage(index, url)}
                                 className="px-2 py-1 border-t border-slate-100 bg-slate-50 text-[11px] text-red-600 font-medium hover:bg-red-50"
                               >
                                 ลบรูป
@@ -2305,12 +2293,11 @@ function AdminPageInner() {
     fetchConfig();
   }, []);
 
-    const handleSave = async () => {
+  const handleSave = async () => {
     setSaving(true);
     try {
       let res: Response | null = null;
 
-      // เลือกยิง API ตาม tab ที่เปิดอยู่
       switch (activeSection) {
         case "hero": {
           const payload = buildHeroPayload(config);
@@ -2406,8 +2393,6 @@ function AdminPageInner() {
     }
   };
 
-
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -2482,4 +2467,3 @@ function AdminPageInner() {
 export default function AdminPage() {
   return <AdminPageInner />;
 }
-

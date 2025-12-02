@@ -1,36 +1,35 @@
-// app/api/admin/upload/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { r2Client, BUCKET_NAME } from "./../../../../lib/server/r2";
 
-export const runtime = "nodejs";
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("file");
+    const form = await req.formData();
+    const file = form.get("file") as File | null;
 
-    if (!(file instanceof File)) {
-      return NextResponse.json(
-        { ok: false, error: "No file provided" },
-        { status: 400 }
-      );
+    if (!file) {
+      return NextResponse.json({ ok: false, error: "No file received" }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const base64 = buffer.toString("base64");
 
-    const mime = file.type || "image/png";
-    const dataUrl = `data:${mime};base64,${base64}`;
+    const key = `uploads/${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
 
-    return NextResponse.json({
-      ok: true,
-      url: dataUrl,
-    });
-  } catch (err) {
-    console.error("Upload error", err);
-    return NextResponse.json(
-      { ok: false, error: "Upload failed" },
-      { status: 500 }
+    await r2Client.send(
+      new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        Body: buffer,
+        ContentType: file.type,
+      })
     );
+
+    const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_BASE_URL}/${key}`;
+
+    return NextResponse.json({ ok: true, url: publicUrl });
+  } catch (error: any) {
+    console.error("Upload Error:", error);
+    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 }
