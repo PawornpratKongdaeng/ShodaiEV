@@ -1,12 +1,20 @@
-// app/api/admin/upload/route.ts
 import { NextResponse } from "next/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2Client, BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/server/r2";
 
-export const runtime = "nodejs";
+export const runtime = "nodejs"; // ❗ สำคัญมาก
 
 export async function POST(req: Request) {
   try {
+    // debug env ว่าขึ้นไหม (ชั่วคราว)
+    console.log("R2 ENV CHECK:", {
+      endpoint: !!process.env.CLOUDFLARE_R2_ENDPOINT,
+      accessKey: !!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+      secretKey: !!process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+      bucket: !!process.env.CLOUDFLARE_R2_BUCKET,
+      publicUrl: !!process.env.CLOUDFLARE_PUBLIC_BASE_URL,
+    });
+
     const form = await req.formData();
     const file = form.get("file") as File | null;
 
