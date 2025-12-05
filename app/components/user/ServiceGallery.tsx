@@ -109,7 +109,7 @@ export default function ServiceGallery({ images = [] }: ServiceGalleryProps) {
           )}
 
           <div className="flex-1">
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-6">
+            <div className="grid grid-cols-6 sm:grid-cols-6 gap-6 sm:gap-6">
               {currentSet.map(({ url, idx }) => (
                 <button
                   key={`${url}-${idx}`}
