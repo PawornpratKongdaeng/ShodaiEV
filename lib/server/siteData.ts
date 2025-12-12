@@ -1,5 +1,7 @@
 // lib/server/siteData.ts
 import { getDb } from "./mongodb";
+import fs from "fs";
+import path from "path";
 
 export type ServiceItem = {
   id: string;
@@ -120,7 +122,6 @@ const defaultConfig: SiteConfig = {
 function normalizeConfig(raw: Partial<SiteConfig> | null): SiteConfig {
   const parsed = raw || {};
 
-  // ====== จัดการ productsSections ให้มีค่าเสมอ ======
   const normalizedProductsSections = {
     home: Array.isArray(parsed.productsSections?.home)
       ? parsed.productsSections!.home
@@ -132,7 +133,6 @@ function normalizeConfig(raw: Partial<SiteConfig> | null): SiteConfig {
       : [],
   };
 
-  // ====== จัดการ products ให้ sync กับ productsSections.home ======
   const normalizedProducts =
     Array.isArray(parsed.products) && parsed.products.length > 0
       ? parsed.products
@@ -142,10 +142,8 @@ function normalizeConfig(raw: Partial<SiteConfig> | null): SiteConfig {
     ...defaultConfig,
     ...parsed,
 
-    // list หลักต่าง ๆ
     services: Array.isArray(parsed.services) ? parsed.services : [],
 
-    // ใช้ normalizedProducts ที่ซิงค์ไว้แล้ว
     products: normalizedProducts,
 
     productsSections: normalizedProductsSections,
@@ -164,33 +162,62 @@ function normalizeConfig(raw: Partial<SiteConfig> | null): SiteConfig {
   };
 }
 
-
 const COLLECTION = "site_config";
 const DOC_ID = "main";
 
-export async function loadSiteData(): Promise<SiteConfig> {
-  const db = await getDb();
-  const col =
-    db.collection<{ _id: string; data: SiteConfig }>(COLLECTION);
-  const doc = await col.findOne({ _id: DOC_ID });
-
-  if (!doc || !doc.data) {
-    const normalized = normalizeConfig(defaultConfig);
-    await col.updateOne(
-      { _id: DOC_ID },
-      { $set: { data: normalized } },
-      { upsert: true }
-    );
-    return normalized;
+async function readStaticSiteDataIfExists(): Promise<SiteConfig | null> {
+  try {
+    const staticPath = path.join(process.cwd(), "data", "siteData.json");
+    if (fs.existsSync(staticPath)) {
+      const raw = fs.readFileSync(staticPath, "utf-8");
+      return JSON.parse(raw) as SiteConfig;
+    }
+  } catch (err) {
+    console.warn("Failed to read static siteData.json:", err);
   }
+  return null;
+}
 
-  return normalizeConfig(doc.data);
+export async function loadSiteData(): Promise<SiteConfig> {
+  try {
+    const db = await getDb();
+    if (!db) {
+      // Fallback: try static file, then defaultConfig
+      const staticData = await readStaticSiteDataIfExists();
+      if (staticData) {
+        return normalizeConfig(staticData);
+      }
+      return normalizeConfig(defaultConfig);
+    }
+
+    const col = db.collection<{ _id: string; data: SiteConfig }>(COLLECTION);
+    const doc = await col.findOne({ _id: DOC_ID });
+
+    if (!doc || !doc.data) {
+      const normalized = normalizeConfig(defaultConfig);
+      await col.updateOne(
+        { _id: DOC_ID },
+        { $set: { data: normalized } },
+        { upsert: true }
+      );
+      return normalized;
+    }
+
+    return normalizeConfig(doc.data);
+  } catch (err) {
+    console.error("loadSiteData error:", err);
+    // Ensure we return a usable config instead of throwing
+    const staticData = await readStaticSiteDataIfExists();
+    return normalizeConfig(staticData ?? defaultConfig);
+  }
 }
 
 export async function saveSiteData(data: SiteConfig): Promise<void> {
   const db = await getDb();
-  const col =
-    db.collection<{ _id: string; data: SiteConfig }>(COLLECTION);
+  if (!db) {
+    throw new Error("No database available to save site data.");
+  }
+  const col = db.collection<{ _id: string; data: SiteConfig }>(COLLECTION);
   const normalized = normalizeConfig(data);
 
   await col.updateOne(
