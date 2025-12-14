@@ -29,6 +29,14 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
 
   const hasPhone = !!phone;
   const hasLine = !!line;
+    const handlePhoneClick = () => {
+  if (typeof window !== "undefined" && (window as any).dataLayer) {
+    (window as any).dataLayer.push({
+      event: "phone_click",
+      phone_number: phone,
+    });
+  }
+};
 
   return (
     <>
@@ -73,7 +81,12 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
                 )}
 
                 {hasPhone && (
-                  <>
+                  
+                   <a
+  href={`tel:${phone}`}
+  onClick={handlePhoneClick}
+  className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
+>
                     <div className="h-8 w-px bg-[var(--color-primary-soft)]" />
                     <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--color-primary-soft)] bg-[var(--color-surface)]">
                       <span className="text-xl">📞</span>
@@ -81,7 +94,7 @@ export default function Header({ phone = "", line = "" }: HeaderProps) {
                         {phone}
                       </span>
                     </div>
-                  </>
+                  </a>
                 )}
               </div>
 
