@@ -52,9 +52,15 @@ export default function Contact({
         <div className="space-y-3 sm:space-y-4">
           {hasPhone && (
             <a
-              href={`tel:${phone}`}
-              className="block w-full rounded-2xl bg-[var(--color-bg)] p-4 sm:p-5 border border-[var(--color-primary-soft)] hover:border-[var(--color-primary)] shadow-sm hover:shadow-md transition-all"
-            >
+  href={`tel:${phone}`}
+  onClick={() => {
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", "conversion", {
+        send_to: "AW-11024557003/JyihCJW3m4waEMvH9Ygp",
+      });
+    }
+  }}
+>
               <div className="flex items-center">
                 <span className="text-lg sm:text-xl">📞</span>
                 <span className="ml-3 sm:ml-4 text-sm sm:text-base text-[var(--color-text)] break-all">
